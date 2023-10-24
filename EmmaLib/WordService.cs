@@ -1,4 +1,5 @@
-﻿namespace EmmaLib;
+﻿
+namespace Emma.Lib;
 
 /// <summary>
 /// Provides information about words.
@@ -7,11 +8,30 @@ public class WordService
 {
     private readonly List<Lexicon> m_Lexicons = new();
 
+    /// <summary>
+    /// The currently active lexicon.
+    /// </summary>
+    public Lexicon ActiveLexicon { get; set; }
+
+    /// <summary>
+    /// The currently active rule set.
+    /// </summary>
+    public RuleSet ActiveRuleSet { get; set; }
+
+    /// <summary>
+    /// A lexicon that consists of all words from other available lexicons.
+    /// </summary>
+    public Lexicon AllLexicons { get; set; }
 
     /// <summary>
     /// The folder path that contains lexicons, definitions and so on.
     /// </summary>
     public string BaseFolder { get; }
+
+    /// <summary>
+    /// Dictionary definitions for words.
+    /// </summary>
+    public DefinitionSet Definitions { get; }
 
 
     /// <summary>
@@ -21,9 +41,64 @@ public class WordService
     public WordService(string baseFolder)
     {
         BaseFolder = baseFolder;
+
+        RuleSets = new List<RuleSet>
+        {
+            RuleSet.Standard,
+            RuleSet.Super
+        };
+
+        ActiveRuleSet = RuleSet.Standard;
+
+        var allLexicons = Lexicon.Combine(Lexicons);
+        m_Lexicons.Add(allLexicons);
+        AllLexicons = allLexicons;
+        ActiveLexicon = allLexicons;
+
+        string definitionFile = Path.Combine(baseFolder, "dict", "dictionary.tsv");
+        string bonusFile = Path.Combine(baseFolder, "dict", "bonus.tsv");
+
+        Definitions = new DefinitionSet();
+
+        if (File.Exists(definitionFile))
+        {
+            DefinitionSet.ReadFromFile(Definitions, definitionFile);
+        }
+
+        if (File.Exists(bonusFile))
+        {
+            DefinitionSet.ReadFromFile(Definitions, bonusFile);
+        }
     }
 
 
+    /// <summary>
+    /// Returns all available rulesets.
+    /// </summary>
+    public IList<RuleSet> RuleSets { get; set; }
+    
+
+    /// <summary>
+    /// Returns the rule set with the specified name, or null if none exists.
+    /// </summary>
+    /// <param name="name">The rule set name.</param>
+    public RuleSet? GetRuleSet(string name)
+    {
+        foreach (var ruleset in RuleSets)
+        {
+            if (ruleset.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ruleset;
+            }
+        }
+
+        return null;
+    }
+
+
+    /// <summary>
+    /// Returns all available lexicons.
+    /// </summary>
     public IList<Lexicon> Lexicons
     {
         get
@@ -32,13 +107,17 @@ public class WordService
             {
                 var lexiconFolder = Path.Combine(BaseFolder, "lexicon");
 
-                foreach (string lexiconFile in Directory.GetFiles(lexiconFolder))
+                if (Directory.Exists(lexiconFolder))
                 {
-                    string name = Path.GetFileNameWithoutExtension(lexiconFile);
-                    using var stream = File.OpenRead(lexiconFile);
+                    foreach (string lexiconFile in Directory.GetFiles(lexiconFolder))
+                    {
+                        Console.WriteLine("Loading lexicon file " + lexiconFile);
+                        string name = Path.GetFileNameWithoutExtension(lexiconFile);
+                        using var stream = File.OpenRead(lexiconFile);
 
-                    var lexicon = new Lexicon(name, stream);
-                    m_Lexicons.Add(lexicon);
+                        var lexicon = new Lexicon(name, stream);
+                        m_Lexicons.Add(lexicon);
+                    }
                 }
             }
 
@@ -62,5 +141,44 @@ public class WordService
         }
 
         return null;
+    }
+
+
+    /// <summary>
+    /// Returns the lexicon indicating symbol for a word (* if not in lexicon, # if in CSW only, $ if in NWL only).
+    /// </summary>
+    /// <param name="word">The word.</param>
+    public string GetSymbol(string word)
+    {
+        if (ActiveLexicon == AllLexicons)
+        {
+            var nwl = GetLexicon("nwl");
+            var csw = GetLexicon("csw");
+
+            if (nwl != null && csw != null)
+            {
+                bool inNwl = nwl.Contains(word);
+                bool inCsw = csw.Contains(word);
+
+                if (inCsw)
+                {
+                    if (!inNwl)
+                    {
+                        return "#";
+                    }
+                }
+                else if (inNwl)
+                {
+                    return "$";
+                }
+            }
+        }
+
+        if (!ActiveLexicon.Contains(word))
+        {
+            return "*";
+        }
+
+        return "";
     }
 }

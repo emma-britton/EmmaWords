@@ -1,60 +1,35 @@
-﻿using System.Drawing.Drawing2D;
+﻿using Emma.Lib;
 using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.IO;
+using System.Media;
 using System.Net;
-using TwitchLib.Client.Models;
-using TwitchLib.PubSub.Models.Responses.Messages;
 
-namespace EmmaWords;
+namespace Emma.Stream;
 
-class StartScreen
+class StartScreen : Gdi
 {
-    record Circle()
-    {
-        public PointF Centre { get; set; }
-        public Color Color { get; set; }
-        public float Alpha { get; set; }
-        public float Size { get; set; }
-    }
-
-    record Chat()
+    record ChatBubble()
     {
         public string? Text { get; set; }
         public RectangleF Area { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public RectangleF TargetArea { get; set; }
-        public List<string> EmoteIds { get; set; }
+        public List<string>? EmoteIds { get; set; }
         public int TTL { get; set; }
         public bool Streamer { get; set; }
     }
 
-    readonly List<Circle> Circles = new();
-    readonly List<Chat> Chats = new();
-    readonly Random Random = new();
+    readonly EmmaStream Stream;
+
+    readonly List<ChatBubble> Chats = new();
     readonly Dictionary<string, Image> ProfileCache = new();
-    readonly Image StreamerImage;
+
     readonly EmoteCache EmoteCache = new();
-    readonly GdiAnimation Animation;
-    readonly TwitchBot TwitchBot;
-    readonly WordService WordService;
-    readonly Image BackgroundImage = new Bitmap(@"C:\Users\huggl\streaming\Emma_Background.png");
-    readonly Image SpinnerImage = new Bitmap(@"C:\Users\huggl\streaming\points\Flower2_112.png");
+    readonly Image? BackgroundImage;
+    readonly Image? SpinnerImage;
+    readonly Image? StreamerImage;
+    readonly SoundPlayer SoundPlayer = new();
 
-    private System.Media.SoundPlayer SoundPlayer;
-
-
-    public StartScreen(GdiAnimation animation, TwitchBot twitchBot, WordService service)
-    {
-        Animation = animation;
-        TwitchBot = twitchBot;
-        WordService = service;
-        StreamerImage = Image.FromFile(@"C:\Users\huggl\emotes\broadcast.png");
-    }
-
-    readonly float FADE_RATE = 0.4f;
-    readonly float GROW_RATE = 1f;
-    readonly float SPAWN_RATE = 0.06f;
     readonly float BUBBLE_CORNER = 20;
     readonly float ANIMATION_SPEED = 0.08f;
     readonly float BUBBLE_WIDTH = 520f;
@@ -66,125 +41,115 @@ class StartScreen
     readonly float SCREEN_HMARGIN = 48f;
     readonly float BUBBLE_SPACE = 8f;
     readonly float PROFILE_SIZE = 48f;
+    readonly float EMOTE_SIZE = 48f;
 
-    public static readonly float EMOTE_SIZE = 48f;
 
-
-    readonly (int R, int G, int B)[] Palette =
+    public StartScreen(EmmaStream stream, Form owner) : base(owner)
     {
-        (204, 225, 242),
-        (198, 248, 229),
-        (251, 247, 213),
-        (249, 222, 215),
-        (245, 205, 222),
-        (226, 190, 241)
-    };
+        Stream = stream;
+        string baseFolder = Properties.Settings.Default.BaseFolder;
 
-
-    public void Tick()
-    {
-        if (WordService.Starting)
+        if (Directory.Exists(baseFolder))
         {
-            WordService.Starting = false;
-
-            if (SoundPlayer != null)
-            {
-                SoundPlayer.Stop();
-            }
-            
-            SoundPlayer = new System.Media.SoundPlayer();
-            SoundPlayer.SoundLocation = Properties.Settings.Default.StartMusic;
-            SoundPlayer.Play();
+            BackgroundImage = Image.FromFile(Path.Combine(baseFolder, "Background.png"));
         }
 
-        lock (Circles)
+        string spinnerImageFolder = Path.Combine(baseFolder, "flowers");
+
+        if (Directory.Exists(spinnerImageFolder))
         {
-            /*if (Random.NextDouble() < SPAWN_RATE)
+            var spinnerImages = Directory.GetFiles(@"C:\Users\huggl\streaming\flowers").ToList();
+            string randomImage = spinnerImages[new Random().Next(spinnerImages.Count)];
+            SpinnerImage = Image.FromFile(randomImage);
+        }
+
+        string emoteCacheFolder = Properties.Settings.Default.EmoteCache;
+
+        if (Directory.Exists(emoteCacheFolder))
+        {
+            StreamerImage = Image.FromFile(Path.Combine(emoteCacheFolder, "broadcast.png"));
+        }
+    }
+
+
+    public void StartStream()
+    {
+        SoundPlayer.Stop();
+        SoundPlayer.SoundLocation = Properties.Settings.Default.StartMusic;
+        SoundPlayer.Play();
+    }
+
+
+    public void StopStream()
+    {
+        SoundPlayer.Stop();
+    }
+
+
+    public void ClearChat()
+    {
+        foreach (var chat in Chats)
+        {
+            chat.TTL = 0;
+        }
+    }
+
+
+    public override void Tick()
+    {
+        for (int i = Chats.Count - 1; i >= 0; i--)
+        {
+            var chat = Chats[i];
+
+            if (Math.Abs(chat.Area.X - chat.TargetArea.X) < 0.1f && Math.Abs(chat.Area.Y - chat.TargetArea.Y) < 0.1f
+                && Math.Abs(chat.Area.Width - chat.TargetArea.Width) < 0.1f && Math.Abs(chat.Area.Height - chat.TargetArea.Height) < 0.1f)
             {
-                float x = (float)(Random.NextDouble() * Animation.Area.Width * 1.2 - Animation.Area.Width * 0.1);
-                float y = (float)(Random.NextDouble() * Animation.Area.Height * 1.2 - Animation.Area.Height * 0.1);
-
-                var ce = Palette[Random.Next(Palette.Length)];
-                var color = Color.FromArgb(240, ce.R, ce.G, ce.B);
-
-                var circle = new Circle { Centre = new PointF(x, y), Color = color, Alpha = 240 };
-                Circles.Add(circle);
+                chat.Area = chat.TargetArea;
             }
 
-            for (int i = Circles.Count - 1; i >= 0; i--)
+            if (chat.Area != chat.TargetArea)
             {
-                var circle = Circles[i];
-                circle.Alpha -= FADE_RATE;
-                circle.Color = Color.FromArgb((int)circle.Alpha, circle.Color.R, circle.Color.G, circle.Color.B);
-                circle.Size += GROW_RATE;
-
-                if (circle.Alpha <= 0)
-                {
-                    Circles.RemoveAt(i);
-                }
-            }*/
-
-            if (TwitchBot.ClearChat)
-            {
-                foreach (var chat in Chats)
-                {
-                    chat.TTL = 0;
-                }
-
-                TwitchBot.ClearChat = false;
+                chat.Area = new RectangleF
+                (
+                    chat.Area.X + (chat.TargetArea.X - chat.Area.X) * ANIMATION_SPEED,
+                    chat.Area.Y + (chat.TargetArea.Y - chat.Area.Y) * ANIMATION_SPEED,
+                    chat.Area.Width + (chat.TargetArea.Width - chat.Area.Width) * ANIMATION_SPEED,
+                    chat.Area.Height + (chat.TargetArea.Height - chat.Area.Height) * ANIMATION_SPEED
+                );
             }
 
-            for (int i = Chats.Count - 1; i >= 0; i--)
+            chat.TTL--;
+
+            if (chat.TTL <= 0)
             {
-                var chat = Chats[i];
+                chat.TargetArea = new RectangleF(chat.TargetArea.X,
+                    -(200 + chat.Area.Height), chat.TargetArea.Width, chat.TargetArea.Height);
+            }
 
-                if (Math.Abs(chat.Area.X - chat.TargetArea.X) < 0.1f && Math.Abs(chat.Area.Y - chat.TargetArea.Y) < 0.1f
-                    && Math.Abs(chat.Area.Width - chat.TargetArea.Width) < 0.1f && Math.Abs(chat.Area.Height - chat.TargetArea.Height) < 0.1f)
-                {
-                    chat.Area = chat.TargetArea;
-                }
-
-                if (chat.Area != chat.TargetArea)
-                {
-                    chat.Area = new RectangleF
-                    (
-                        chat.Area.X + (chat.TargetArea.X - chat.Area.X) * ANIMATION_SPEED,
-                        chat.Area.Y + (chat.TargetArea.Y - chat.Area.Y) * ANIMATION_SPEED,
-                        chat.Area.Width + (chat.TargetArea.Width - chat.Area.Width) * ANIMATION_SPEED,
-                        chat.Area.Height + (chat.TargetArea.Height - chat.Area.Height) * ANIMATION_SPEED
-                    );
-                }
-
-                chat.TTL--;
-
-                if (chat.TTL <= 0)
-                {
-                    chat.TargetArea = new RectangleF(chat.TargetArea.X,
-                        -(200 + chat.Area.Height), chat.TargetArea.Width, chat.TargetArea.Height);
-                }
-
-                if (chat.Area.Bottom < 0)
-                {
-                    Chats.RemoveAt(i);
-                }
+            if (chat.Area.Bottom < 0)
+            {
+                Chats.RemoveAt(i);
             }
         }
     }
 
 
-    public void ProcessChatMessage(ChatMessage message)
+    public override void HandleMessage(StreamMessage message)
     {
-        string noEmotes = message.Message;
+        string text = message.Text;
         var emoteIds = new List<string>();
 
-        foreach (var emote in message.EmoteSet.Emotes)
+        if (message.Emotes != null)
         {
-            EmoteCache.LoadTwitch(emote.Id);
-            emoteIds.Add(emote.Id);
-            noEmotes = noEmotes.Substring(0, emote.StartIndex) + new string(' ', emote.EndIndex - emote.StartIndex + 1) + noEmotes.Substring(emote.EndIndex + 1);
+            foreach (var emote in message.Emotes)
+            {
+                EmoteCache.LoadTwitch(emote.Id, (int)EMOTE_SIZE);
+                emoteIds.Add(emote.Id);
+                text = text[..emote.StartIndex] + new string(' ', emote.EndIndex - emote.StartIndex + 1) + text[(emote.EndIndex + 1)..];
+            }
         }
 
-        noEmotes = " " + noEmotes + " ";
+        text = $" { text} ";
 
         string[] extraEmotes =
         {
@@ -193,7 +158,7 @@ class StartScreen
 
         foreach (string emote in extraEmotes)
         {
-            int pos = noEmotes.IndexOf(emote);
+            int pos = text.IndexOf(emote);
 
             if (pos > 0)
             {
@@ -203,33 +168,31 @@ class StartScreen
                 }
 
                 emoteIds.Add(emote);
-                noEmotes = noEmotes.Substring(0, pos) + new string(' ', emote.Length) + noEmotes.Substring(pos + emote.Length);
+                text = text[..pos] + new string(' ', emote.Length) + text[(pos + emote.Length)..];
             }
         }
 
-        while (noEmotes.Contains("  "))
+        while (text.Contains("  "))
         {
-            noEmotes = noEmotes.Replace("  ", " ");
+            text = text.Replace("  ", " ");
         }
 
-        noEmotes = noEmotes.Trim();
+        text = text.Trim();
 
         if (!ProfileCache.ContainsKey(message.Username))
         {
             try
             {
-                using (var client = new WebClient())
+                using var client = new WebClient();
+                string tempfile = @"C:\Users\huggl\emotes\profile_" + message.Username + ".jpg";
+
+                if (!File.Exists(tempfile))
                 {
-                    string tempfile = @"C:\Users\huggl\emotes\profile_" + message.Username + ".jpg";
-
-                    if (!File.Exists(tempfile))
-                    {
-                        string profileurl = TwitchBot.GetProfilePicUrl(message.Username);
-                        client.DownloadFile(new Uri(profileurl), tempfile);
-                    }
-
-                    ProfileCache[message.Username] = Image.FromFile(tempfile);
+                    string profileurl = Stream.TwitchBot.GetProfilePicUrl(message.Username);
+                    client.DownloadFile(new Uri(profileurl), tempfile);
                 }
+
+                ProfileCache[message.Username] = Image.FromFile(tempfile);
             }
             catch
             {
@@ -241,11 +204,11 @@ class StartScreen
 
         int maxEmotes = (int)((BUBBLE_WIDTH - bubbleFiller) / (EMOTE_SIZE + BUBBLE_VMARGIN));
 
-        var chat = new Chat
+        var chat = new ChatBubble
         {
-            Area = new RectangleF(SCREEN_HMARGIN, Animation.Area.Height + SCREEN_VMARGIN, 10, 10),
+            Area = new RectangleF(SCREEN_HMARGIN, Area.Height + SCREEN_VMARGIN, 10, 10),
             Name = message.Username,
-            Text = noEmotes,
+            Text = text,
             EmoteIds = emoteIds.Take(maxEmotes).ToList(),
             TTL = 3600,
             Streamer = message.IsBroadcaster
@@ -253,7 +216,7 @@ class StartScreen
 
         float bubbleHeight = BUBBLE_VMARGIN + BUBBLE_YMARGIN + BUBBLE_TITLE;
         float textWidth = 0, emotesWidth = 0;
-        var titleMeasure = Animation.MeasureString(chat.Name, "ADLaM Display", 16,
+        var titleMeasure = MeasureString(chat.Name, "ADLaM Display", 16,
             new Size((int)BUBBLE_WIDTH, 999), TextFormatFlags.Default, true);
 
         if (chat.Streamer)
@@ -261,9 +224,9 @@ class StartScreen
             titleMeasure.Width += (int)(24 + BUBBLE_VMARGIN);
         }
 
-        if (noEmotes.Trim() != "")
+        if (text.Trim() != "")
         {
-            var measure = Animation.MeasureString(chat.Text, "Arial", 12, new Size((int)(BUBBLE_WIDTH - bubbleFiller), 999), TextFormatFlags.Default, true);
+            var measure = MeasureString(chat.Text, "Arial", 12, new Size((int)(BUBBLE_WIDTH - bubbleFiller), 999), TextFormatFlags.WordBreak, true);
 
             bubbleHeight += measure.Height;
             textWidth = Math.Min(BUBBLE_WIDTH, Math.Max(measure.Width + bubbleFiller, titleMeasure.Width + bubbleFiller));
@@ -277,12 +240,12 @@ class StartScreen
 
         float bubbleWidth = Math.Max(textWidth, emotesWidth);
 
-        if (noEmotes.Trim() != "" && chat.EmoteIds.Any())
+        if (text.Trim() != "" && chat.EmoteIds.Any())
         {
             bubbleHeight += BUBBLE_YMARGIN;
         }
 
-        chat.TargetArea = new RectangleF(SCREEN_HMARGIN, Animation.Area.Height - bubbleHeight - SCREEN_VMARGIN, bubbleWidth, bubbleHeight);
+        chat.TargetArea = new RectangleF(SCREEN_HMARGIN, Area.Height - bubbleHeight - SCREEN_VMARGIN, bubbleWidth, bubbleHeight);
 
         for (int i = Chats.Count - 1; i >= 0; i--)
         {
@@ -295,104 +258,102 @@ class StartScreen
     }
 
 
-    readonly StringFormat Format = new()
+    public override void Render()
     {
-        LineAlignment = StringAlignment.Center,
-        Alignment = StringAlignment.Center
-    };
-
-
-    public void Render(Graphics gfx, Rectangle area)
-    {
-        lock (Circles)
+        Gfx.Clear(Color.FromArgb(255, 40, 40, 40));
+       
+        if (BackgroundImage != null)
         {
-            gfx.SmoothingMode = SmoothingMode.HighQuality;
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            gfx.Clear(Color.FromArgb(255, 40, 40, 40));
+            Gfx.DrawImageUnscaled(BackgroundImage, 0, 0);
+        }
+        
+        foreach (var chat in Chats.ToList())
+        {
+            FillRoundedRectangle(Color.White, chat.Area, BUBBLE_CORNER);
+            float titleLeft = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
 
-            gfx.DrawImageUnscaled(BackgroundImage, 0, 0);
-
-            foreach (var circle in Circles)
+            if (chat.Streamer)
             {
-                gfx.FillEllipse(Animation.GetBrush(circle.Color), circle.Centre.X - circle.Size / 2, circle.Centre.Y - circle.Size / 2, circle.Size, circle.Size);
+                if (StreamerImage != null)
+                {
+                    Gfx.DrawImage(StreamerImage, titleLeft, chat.Area.Y + BUBBLE_VMARGIN + 3, 24, 24);
+                }
+                
+                titleLeft += 24 + BUBBLE_VMARGIN;
             }
 
-            foreach (var chat in Chats.ToList())
+            Gfx.DrawString(chat.Name, GetFont("ADLaM Display", 16, true), Brushes.Black,
+                titleLeft, chat.Area.Y + BUBBLE_VMARGIN);
+
+            if (chat.Text != "")
             {
-                Animation.FillRoundedRectangle(Color.White, chat.Area, BUBBLE_CORNER);
-                float titleLeft = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
+                Gfx.DrawString(chat.Text, GetFont("Arial", 12, true), Brushes.Black, new RectangleF(
+                    chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN,
+                    chat.Area.Y + BUBBLE_VMARGIN + BUBBLE_TITLE,
+                    chat.Area.Width - BUBBLE_HMARGIN * 2,
+                    chat.Area.Height - BUBBLE_VMARGIN * 2 - BUBBLE_TITLE));
+            }
 
-                if (chat.Streamer)
-                {
-                    gfx.DrawImage(StreamerImage, titleLeft, chat.Area.Y + BUBBLE_VMARGIN + 3, 24, 24);
-                    titleLeft += 24 + BUBBLE_VMARGIN;
-                }
+            float emoteX = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
 
-                gfx.DrawString(chat.Name, Animation.GetFont("ADLaM Display", 16, true), Brushes.Black,
-                    titleLeft, chat.Area.Y + BUBBLE_VMARGIN);
-
-                if (chat.Text != "")
-                {
-                    gfx.DrawString(chat.Text, Animation.GetFont("Arial", 12, true), Brushes.Black, new RectangleF(
-                        chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN,
-                        chat.Area.Y + BUBBLE_VMARGIN + BUBBLE_TITLE,
-                        chat.Area.Width - BUBBLE_HMARGIN * 2,
-                        chat.Area.Height - BUBBLE_VMARGIN * 2 - BUBBLE_TITLE));
-                }
-
-                float emoteX = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
-
+            if (chat.Name != null)
+            {
                 var profile = ProfileCache[chat.Name];
-
-                gfx.DrawImage(profile, chat.Area.X + BUBBLE_HMARGIN, chat.Area.Y + BUBBLE_VMARGIN, PROFILE_SIZE, PROFILE_SIZE);
-
+                Gfx.DrawImage(profile, chat.Area.X + BUBBLE_HMARGIN, chat.Area.Y + BUBBLE_VMARGIN, PROFILE_SIZE, PROFILE_SIZE);
+            }
+            
+            if (chat.EmoteIds != null)
+            {
                 foreach (var emoteId in chat.EmoteIds)
                 {
                     var image = EmoteCache.Get(emoteId);
-                    int frames = 1;
 
-                    try
+                    if (image != null)
                     {
-                        frames = image.GetFrameCount(FrameDimension.Time);
-                    }
-                    catch
-                    { }
+                        int frames = 1;
 
-                    if (frames > 1)
-                    {
-                        image.SelectActiveFrame(FrameDimension.Time, Animation.Frame % frames);
-                    }
+                        try
+                        {
+                            frames = image.GetFrameCount(FrameDimension.Time);
+                        }
+                        catch
+                        { }
 
-                    gfx.DrawImage(image, emoteX, chat.Area.Bottom - BUBBLE_YMARGIN - EMOTE_SIZE, EMOTE_SIZE, EMOTE_SIZE * ((float)image.Height / image.Width));
-                    emoteX += EMOTE_SIZE + BUBBLE_VMARGIN;
+                        if (frames > 1)
+                        {
+                            image.SelectActiveFrame(FrameDimension.Time, Frame % frames);
+                        }
+
+                        Gfx.DrawImage(image, emoteX, chat.Area.Bottom - BUBBLE_YMARGIN - EMOTE_SIZE, EMOTE_SIZE, EMOTE_SIZE * ((float)image.Height / image.Width));
+                        emoteX += EMOTE_SIZE + BUBBLE_VMARGIN;
+                    }
                 }
             }
+        }
 
-            var messageArea = new RectangleF(area.Width * 0.32f, area.Height * 3 / 4, area.Width * 0.36f, area.Height / 9);
-            Animation.FillRoundedRectangle(Color.Black, messageArea, 10);
-            messageArea.Inflate(-5, -5);
-            Animation.FillRoundedRectangle(Color.White, messageArea, 10);
-            Animation.DrawFitTextOneLine(WordService.StreamMessage.Replace("\r\n", " "), "MV Boli", Color.Black, messageArea, Animation.CenterCenter, true);
+        var messageArea = new RectangleF(Area.Width * 0.32f, Area.Height * 3 / 4, Area.Width * 0.36f, Area.Height / 9);
+        FillRoundedRectangle(Color.Black, messageArea, 10);
+        messageArea.Inflate(-5, -5);
+        FillRoundedRectangle(Color.White, messageArea, 10);
+        DrawFitTextOneLine(Stream.Message.Replace("\r\n", " "), "MV Boli", Color.Black, messageArea, CenterCenter, true);
 
-            var spinnerArea = new RectangleF(area.Width - area.Width / 12 - area.Width / 32, area.Height - area.Width / 12 - area.Width / 32, (int)(SpinnerImage.Width * 1.41), (int)(SpinnerImage.Height * 1.41));
-            gfx.FillEllipse(Brushes.Black, spinnerArea);
+        if (SpinnerImage != null)
+        {
+            var spinnerArea = new RectangleF(Area.Width - Area.Width / 12 - Area.Width / 32, 
+                Area.Height - Area.Width / 12 - Area.Width / 32, (int)(SpinnerImage.Width * 1.41), (int)(SpinnerImage.Height * 1.41));
+            Gfx.FillEllipse(Brushes.Black, spinnerArea);
             spinnerArea.Inflate(-5, -5);
-            gfx.FillEllipse(Brushes.White, spinnerArea);
+            Gfx.FillEllipse(Brushes.White, spinnerArea);
 
-            //create a new empty bitmap to hold rotated image
-            using var returnBitmap = new Bitmap(SpinnerImage.Width, SpinnerImage.Height);
+            using var returnBitmap = new Bitmap(SpinnerImage.Width * 2, SpinnerImage.Height * 2);
             using var g = Graphics.FromImage(returnBitmap);
-            //move rotation point to center of image
-            g.TranslateTransform((float)SpinnerImage.Width / 2, (float)SpinnerImage.Height / 2);
-            //rotate
-            g.RotateTransform((int)(Animation.Frame * 2));
-            //move image back
-            g.TranslateTransform(-(float)SpinnerImage.Width / 2, -(float)SpinnerImage.Height / 2);
-            //draw passed in image onto graphics object
-            g.DrawImageUnscaled(SpinnerImage, new Point(0, 0));
-            
-            gfx.DrawImageUnscaled(returnBitmap, (int)(spinnerArea.Left + spinnerArea.Width / 9) + 1, (int)(spinnerArea.Top + spinnerArea.Height / 9) + 1);
+            g.TranslateTransform((float)returnBitmap.Width / 2, (float)returnBitmap.Height / 2);
+            g.RotateTransform(Frame * 1.8f);
+            g.TranslateTransform(-(float)returnBitmap.Width / 2, -(float)returnBitmap.Height / 2);
+            int offset = SpinnerImage.Width / 2;
+            g.DrawImageUnscaled(SpinnerImage, new Point(offset, offset));
+
+            Gfx.DrawImageUnscaled(returnBitmap, (int)(spinnerArea.Left + spinnerArea.Width / 9) - offset + 1, (int)(spinnerArea.Top + spinnerArea.Height / 9) - offset + 1);
         }
     }
 }

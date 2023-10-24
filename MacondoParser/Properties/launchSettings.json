@@ -2,7 +2,7 @@
   "profiles": {
     "MacondoParser": {
       "commandName": "Project",
-      "commandLineArgs": "plays \"C:\\Users\\huggl\\wirds\\sim\\play.txt\" \"C:\\Users\\huggl\\wirds\\sim\\playstats.txt\"",
+      "commandLineArgs": "words \"C:\\Users\\huggl\\wirds\\sim\\play.txt\" \"C:\\Users\\huggl\\wirds\\sim\\words.txt\"",
       "workingDirectory": "C:\\Users\\huggl\\wirds\\sim"
     }
   }

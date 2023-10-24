@@ -1,6 +1,6 @@
-﻿using EmmaLib;
+﻿using Emma.Lib;
 
-namespace MacondoParser;
+namespace Emma.MacondoParser;
 
 public static class MacondoAnalysis
 {
@@ -308,6 +308,9 @@ public static class MacondoAnalysis
     {
         var wordPlays = new Dictionary<string, int>();
         var wordScores = new Dictionary<string, int>();
+        var winCounts = new Dictionary<string, decimal>();
+        var lossCounts = new Dictionary<string, decimal>();
+        
         int gameCount = 0;
 
         foreach (var game in games)
@@ -316,28 +319,58 @@ public static class MacondoAnalysis
 
             foreach (var play in game.Plays)
             {
-                if (play.Word != null)
+                void AnalyseWord(string? word)
                 {
-                    wordPlays[play.Word] = wordPlays.GetValueOrDefault(play.Word) + 1;
-                    wordScores[play.Word] = wordScores.GetValueOrDefault(play.Word) + play.Score;
+                    if (word == null) return;
+
+                    wordPlays[word] = wordPlays.GetValueOrDefault(word) + 1;
+                    wordScores[word] = wordScores.GetValueOrDefault(word) + play.Score;
+
+                    if (game.Winner == play.PlayerNumber)
+                    {
+                        winCounts[word] = winCounts.GetValueOrDefault(word) + 1;
+                    }
+                    else if (game.Winner == 0)
+                    {
+                        winCounts[word] = winCounts.GetValueOrDefault(word) + 0.5m;
+                        lossCounts[word] = lossCounts.GetValueOrDefault(word) + 0.5m;
+                    }
+                    else
+                    {
+                        lossCounts[word] = lossCounts.GetValueOrDefault(word) + 1;
+                    }
+                }
+
+                if (game.IsComplete)
+                {
+                    AnalyseWord(play.Word);
+
+                    if (play.AdditionalWords != null)
+                    {
+                        foreach (var word in play.AdditionalWords)
+                        {
+                            AnalyseWord(word);
+                        }
+                    }
                 }
             }
 
-            if (gameCount >= 100000)
+            if (gameCount % 100000 == 0)
             {
-                break;
+                Console.WriteLine(gameCount + "...");
             }
         }
 
         using var writer = new StreamWriter(output);
         writer.AutoFlush = true;
-        writer.WriteLine("Word,Plays,AvgPlayScore,AvgGameScore");
+        writer.WriteLine("Word,Plays,AvgScorePerPlay,AvgScorePerGame,WinRate");
 
         foreach (var item in wordScores.OrderByDescending(x => x.Value))
         {
             decimal wordScore = wordScores[item.Key];
             decimal avgGameScore = wordScore / gameCount;
             decimal avgPlayScore = 0;
+            decimal winRate = 0;
 
             int plays = wordPlays[item.Key];
 
@@ -346,7 +379,15 @@ public static class MacondoAnalysis
                 avgPlayScore = wordScore / plays;
             }
 
-            writer.WriteLine($"{item.Key},{plays},{avgPlayScore:F2},{avgGameScore:F10}");
+            if (winCounts.ContainsKey(item.Key) || lossCounts.ContainsKey(item.Key))
+            {
+                winRate = winCounts.GetValueOrDefault(item.Key) / (winCounts.GetValueOrDefault(item.Key) + lossCounts.GetValueOrDefault(item.Key));
+            }
+
+            if (plays > 10)
+            {
+                writer.WriteLine($"{item.Key},{plays},{avgPlayScore:F2},{avgGameScore:F8},{winRate:F4}");
+            }
         }
     }
 
@@ -394,7 +435,7 @@ public static class MacondoAnalysis
                 avgPlayScore = alphaScore / plays;
             }
 
-            writer.WriteLine($"{item.Key},{plays},{avgPlayScore:F2},{avgGameScore:F10}");
+            writer.WriteLine($"{item.Key},{plays},{avgPlayScore:F2},{avgGameScore:F8}");
         }
     }
 

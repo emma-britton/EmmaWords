@@ -1,118 +1,67 @@
+using Emma.Lib;
 
+namespace Emma.Stream;
 
-namespace EmmaWords;
-
-partial class MainForm : Form
+public partial class MainForm : Form
 {
-    public GdiAnimation Animation;
-    private readonly StartScreen StartScreen;
-    public WordService WordService;
+    public QueueForm? QueueForm { get; set; }
+
+    private bool IsShown = false;
+    private Gdi? m_UI;
 
 
-    private void MainForm_Load(object sender, EventArgs e)
+    public Gdi? UI
     {
-        ThreadPool.QueueUserWorkItem(state => MonitorConsole());
+        get => m_UI;
+
+        set
+        {
+            if (m_UI != null)
+            {
+                m_UI.Visible = false;
+            }
+
+            m_UI = value;
+
+            if (m_UI != null)
+            {
+                m_UI.Visible = true;
+
+                if (IsShown)
+                {
+                    BeginInvoke(m_UI.Start);
+                }
+            }
+        }
     }
 
 
-    public MainForm(TwitchBot twitchBot, WordService service)
+    public MainForm()
     {
         InitializeComponent();
-
-        WordService = service;
-
-        Animation = new GdiAnimation(CreateGraphics(), DisplayRectangle);
-        Location = Screen.AllScreens.Last().WorkingArea.Location;
-        WindowState = FormWindowState.Maximized;
-
-        Resize += (sender, e) => Animation.Resize(DisplayRectangle);
-        Shown += (sender, e) => Animation.Start();
-        FormClosing += (sender, e) => Animation.Stop();
-
-        StartScreen = new StartScreen(Animation, twitchBot, service);
-
-        Animation.Tick += AnimationTick;
-        Animation.Render += AnimationRender;
     }
 
 
-    private void MonitorConsole()
+    private void WordLearningUI_KeyDown(object sender, KeyEventArgs e)
     {
-        while (true)
+        if (UI != null)
         {
-            Console.Write("> ");
-
-            string? line = Console.ReadLine();
-
-            if (line != null)
-            {
-                if (line == "exit")
-                {
-                    Environment.Exit(0);
-                }
-
-                line = line.Trim();
-                string? result = WordService.InterpretCommand(line);
-
-                if (result != null)
-                {
-                    Console.WriteLine(result);
-                    //TwitchBot.SendMessage(result);
-                }
-            }
+            UI.HandleKey(e);
         }
     }
 
-
-    private void AnimationTick()
-    {
-        if (Program.ChatMessages.TryDequeue(out var message))
-        {
-            if (WordService.GameUI != null)
-            {
-                if (message.Username != Properties.Settings.Default.TwitchUsername)
-                {
-                    WordService.GameUI.HandleMessage(message);
-                }
-            }
-            else
-            {
-                StartScreen.ProcessChatMessage(message);
-            }
-        }
-
-        if (WordService.GameUI == null)
-        {
-            StartScreen.Tick();
-        }
-    }
-
-
-    private void AnimationRender(Graphics gfx)
-    {
-        if (WordService.GameUI != null)
-        {
-            WordService.GameUI.Render(Animation, gfx, DisplayRectangle);
-        }
-        else
-        {
-            StartScreen.Render(gfx, DisplayRectangle);
-        }
-    }
-
-    private void MainForm_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (WordService.GameUI != null)
-        {
-            WordService.GameUI.HandleKey(e);
-        }
-    }
 
     private void MainForm_MouseDown(object sender, MouseEventArgs e)
     {
-        if (WordService.GameUI != null)
+        if (UI != null)
         {
-            WordService.GameUI.HandleMouse(e);
+            UI.HandleMouse(e);
         }
+    }
+
+    private void MainForm_Shown(object sender, EventArgs e)
+    {
+        IsShown = true;
+        QueueForm?.Show();
     }
 }

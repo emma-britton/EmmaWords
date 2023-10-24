@@ -1,4 +1,4 @@
-﻿namespace EmmaWords
+﻿namespace Emma.Stream
 {
     partial class MainForm
     {
@@ -37,9 +37,9 @@
             ClientSize = new Size(942, 462);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Emma Words";
-            Load += MainForm_Load;
-            KeyDown += MainForm_KeyDown;
+            Text = "Emma Stream";
+            Shown += MainForm_Shown;
+            KeyDown += WordLearningUI_KeyDown;
             MouseDown += MainForm_MouseDown;
             ResumeLayout(false);
         }

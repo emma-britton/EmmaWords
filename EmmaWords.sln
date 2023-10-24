@@ -3,13 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmmaWords", "EmmaWords\EmmaWords.csproj", "{862C4789-D6ED-4192-A947-0781582B7101}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emma.Stream", "EmmaWords\Emma.Stream.csproj", "{862C4789-D6ED-4192-A947-0781582B7101}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MacondoParser", "MacondoParser\MacondoParser.csproj", "{F5013BCD-5173-46D6-A3C0-B6098F2C4F18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emma.MacondoParser", "MacondoParser\Emma.MacondoParser.csproj", "{F5013BCD-5173-46D6-A3C0-B6098F2C4F18}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmmaLib", "EmmaLib\EmmaLib.csproj", "{8C022B45-E2C1-46AD-BE40-733B8EB66832}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emma.Lib", "EmmaLib\Emma.Lib.csproj", "{8C022B45-E2C1-46AD-BE40-733B8EB66832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnWords", "LearnWords\LearnWords.csproj", "{BCA5DEAB-78FB-4361-A121-57FAE3F3B616}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emma.WordLearner", "LearnWords\Emma.WordLearner.csproj", "{BCA5DEAB-78FB-4361-A121-57FAE3F3B616}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Emma.Anagramming", "AnagramGame\Emma.Anagramming.csproj", "{F224B45A-6ADA-43FF-A7CE-88FF61A055B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emma.Scrabble", "ScrabbleGame\Emma.Scrabble.csproj", "{D2692801-479B-4FAB-AC40-DC1194F3465B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emma.IsBot", "EmmaIsBot\Emma.IsBot.csproj", "{7D0E2AD7-925D-4F23-B7D6-DBD71FEAF85C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emma.WiktionaryParser", "Emma.WiktionaryParser\Emma.WiktionaryParser.csproj", "{3A5D7641-646A-415B-8793-A98AE00F2442}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +41,22 @@ Global
 		{BCA5DEAB-78FB-4361-A121-57FAE3F3B616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCA5DEAB-78FB-4361-A121-57FAE3F3B616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCA5DEAB-78FB-4361-A121-57FAE3F3B616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F224B45A-6ADA-43FF-A7CE-88FF61A055B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F224B45A-6ADA-43FF-A7CE-88FF61A055B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F224B45A-6ADA-43FF-A7CE-88FF61A055B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F224B45A-6ADA-43FF-A7CE-88FF61A055B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2692801-479B-4FAB-AC40-DC1194F3465B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2692801-479B-4FAB-AC40-DC1194F3465B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2692801-479B-4FAB-AC40-DC1194F3465B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2692801-479B-4FAB-AC40-DC1194F3465B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D0E2AD7-925D-4F23-B7D6-DBD71FEAF85C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D0E2AD7-925D-4F23-B7D6-DBD71FEAF85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D0E2AD7-925D-4F23-B7D6-DBD71FEAF85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D0E2AD7-925D-4F23-B7D6-DBD71FEAF85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A5D7641-646A-415B-8793-A98AE00F2442}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A5D7641-646A-415B-8793-A98AE00F2442}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A5D7641-646A-415B-8793-A98AE00F2442}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A5D7641-646A-415B-8793-A98AE00F2442}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

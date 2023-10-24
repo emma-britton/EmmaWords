@@ -1,58 +1,62 @@
-﻿using System.Collections.Concurrent;
-using System.IO;
-using System.Runtime.InteropServices;
-using TwitchLib.Client.Models;
+﻿using Emma.IsBot;
+using Emma.Lib;
 
-namespace EmmaWords;
+namespace Emma.Stream;
 
 static class Program
 {
-    public static ConcurrentQueue<ChatMessage> ChatMessages { get; } = new();
-
-    static readonly bool Reparse = false;
-    static readonly WordService WordService;
-    static TwitchBot? TwitchBot;
-
-
-    static Program()
-    {
-        if (Reparse && File.Exists(Properties.Settings.Default.WiktionaryXml))
-        {
-            Console.WriteLine("Parsing Wiktionary file");
-            var definitions = WiktionaryReader.ParseXmlData(Properties.Settings.Default.WiktionaryXml);
-            definitions.WriteToFile(Properties.Settings.Default.DictionaryFile);
-        }
-
-        Console.WriteLine("Starting Emma Words");
-
-        WordService = new WordService
-        (
-            Properties.Settings.Default.WordListFolder, 
-            Properties.Settings.Default.DictionaryFile,
-            Properties.Settings.Default.BonusFile,
-            Properties.Settings.Default.TwitchUsername,
-            Properties.Settings.Default.CommandPrefix + " "
-        );
-    }
-
-
     [STAThread]
     static void Main()
     {
-        TwitchBot = new TwitchBot
-        (
-            Properties.Settings.Default.CommandPrefix + " ",
-            WordService,
-            Properties.Settings.Default.TwitchClientID,
-            Properties.Settings.Default.TwitchAccessToken,
-            Properties.Settings.Default.TwitchUsername,
-            Properties.Settings.Default.TwitchOAuth,
-            Properties.Settings.Default.TwitchChannel
-        );
+        try
+        {
+            Console.WriteLine("Starting Emma Stream");
 
-        TwitchBot.Run();
+            var wordService = new WordService(Properties.Settings.Default.BaseFolder);
+            var commandParser = new CommandParser(wordService);
+            var form = new MainForm();
+            var stream = new EmmaStream(form, wordService, commandParser);
+            var queueForm = new QueueForm(stream);
+            form.QueueForm = queueForm;
 
-        var form = new MainForm(TwitchBot, WordService);
-        Application.Run(form);
+            Console.WriteLine("Ready");
+            ThreadPool.QueueUserWorkItem(_ => MonitorConsole(commandParser));
+
+            Application.Run(form);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unhandled error:");
+            Console.WriteLine(ex);
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey(true);
+        }
+    }
+
+
+    static void MonitorConsole(CommandParser commandParser)
+    {
+        Thread.CurrentThread.Name = "Console";
+
+        while (true)
+        {
+            Console.Write("> ");
+            string? command = Console.ReadLine();
+
+            if (command?.ToLower() == "exit")
+            {
+                Application.Exit();
+            }
+            else if (command != null)
+            {
+                var message = new StreamMessage("(console)", command, null, true);
+                string? result = commandParser.InterpretCommand(message, command);
+
+                if (result != null)
+                {
+                    Console.WriteLine(result);
+                }
+            }
+        }
     }
 }

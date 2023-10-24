@@ -1,7 +1,7 @@
-﻿using EmmaLib;
+﻿using Emma.Lib;
 using System.Text;
 
-namespace MacondoParser;
+namespace Emma.MacondoParser;
 
 /// <summary>
 /// Reads Macondo game and play logs.
@@ -14,6 +14,8 @@ public static class MacondoParser
     /// <param name="input">The stream to read.</param>
     public static IEnumerable<ScrabbleGame> ReadGameFile(Stream input)
     {
+        var ws = new WordService(Program.Config["BaseFolder"]);
+
         using var reader = new StreamReader(input);
 
         if (reader.EndOfStream || reader.ReadLine() is not string header)
@@ -52,8 +54,9 @@ public static class MacondoParser
                 firstPlayer = 2;
             }
 
-            var game = new ScrabbleGame(id, player1Name, player2Name)
+            var game = new ScrabbleGame(ws.ActiveRuleSet, ws.ActiveLexicon, player1Name, player2Name)
             {
+                ID = id,
                 FirstPlayer = firstPlayer,
                 Player1Score = int.Parse(fields[score1Col]),
                 Player2Score = int.Parse(fields[score2Col]),
@@ -70,11 +73,39 @@ public static class MacondoParser
 
 
     /// <summary>
+    /// Writes a Macondo game log entry for a game.
+    /// </summary>
+    /// <param name="game"></param>
+    /// <param name="writer">The text writer to write to.</param>
+    public static void WriteGame(ScrabbleGame game, TextWriter writer)
+    {
+        writer.Write(game.ID);
+        writer.Write(',');
+        writer.Write(game.FirstPlayer);
+        writer.Write(',');
+        writer.Write(game.Player1Score);
+        writer.Write(',');
+        writer.Write(game.Player2Score);
+        writer.Write(',');
+        writer.Write(game.Player1Bingos);
+        writer.Write(',');
+        writer.Write(game.Player2Bingos);
+        writer.Write(',');
+        writer.Write(game.Player1Turns);
+        writer.Write(',');
+        writer.Write(game.Player2Turns);
+        writer.WriteLine();
+    }
+
+
+    /// <summary>
     /// Reads a Macondo play log. Returns the plays organized into games. Can handle games interleaved due to threading.
     /// </summary>
     /// <param name="input">The stream to read.</param>
     public static IEnumerable<ScrabbleGame> ReadPlayFile(Stream input)
     {
+        var ws = new WordService(Program.Config["BaseFolder"]);
+
         using var reader = new StreamReader(input);
 
         if (reader.EndOfStream || reader.ReadLine() is not string header)
@@ -119,8 +150,9 @@ public static class MacondoParser
 
             if (!incompleteGames.TryGetValue(id, out var game))
             {
-                game = new ScrabbleGame(id, "p1", "p2")
+                game = new ScrabbleGame(ws.ActiveRuleSet, ws.ActiveLexicon, "p1", "p2")
                 {
+                    ID = id,
                     FirstPlayer = playerNumber
                 };
 
@@ -173,6 +205,7 @@ public static class MacondoParser
 
             var play = new ScrabblePlay
             {
+                GameID = game.ID,
                 ID = $"{game.ID} turn {fields[turnCol]}",
                 PlayerNumber = playerNumber,
                 TurnNumber = int.Parse(fields[turnCol]),
@@ -195,12 +228,50 @@ public static class MacondoParser
                 var playBuilder = new StringBuilder(move.Length * 3);
                 playBuilder.Append(move, 0, 4);
                 bool dot = false;
+                var crossWordBuilder = new StringBuilder(15);
+                play.AdditionalWords = new List<string>();
 
                 for (int i = 4; i < move.Length; i++)
                 {
                     if (move[i] != '.')
                     {
                         bs[col, row] = move[i];
+                        crossWordBuilder.Clear();
+
+                        int row2 = row;
+                        int col2 = col;
+                        
+                        if (vertical)
+                        {
+                            while (col2 > 0 && bs[col2 - 1, row2] != '\0')
+                            {
+                                col2--;
+                            }
+
+                            while (col2 < 15 && bs[col2, row2] != '\0')
+                            {
+                                crossWordBuilder.Append(bs[col2, row2]);
+                                col2++;
+                            }
+                        }
+                        else
+                        {
+                            while (row2 > 0 && bs[col2, row2 - 1] != '\0')
+                            {
+                                row2--;
+                            }
+                            
+                            while (row2 < 15 && bs[col2, row2] != '\0')
+                            {
+                                crossWordBuilder.Append(bs[col2, row2]);
+                                row2++;
+                            }
+                        }
+
+                        if (crossWordBuilder.Length > 1)
+                        {
+                            play.AdditionalWords.Add(crossWordBuilder.ToString().ToUpper());
+                        }
 
                         if (dot)
                         {
@@ -264,6 +335,15 @@ public static class MacondoParser
 
             game.Plays.Add(play);
 
+            if (play.PlayerNumber == 1)
+            {
+                game.Player1Score = int.Parse(fields[totalScoreCol]);
+            }
+            else
+            {
+                game.Player2Score = int.Parse(fields[totalScoreCol]);
+            }
+
             if (game.IsComplete)
             {
                 incompleteGames.Remove(id);
@@ -272,4 +352,39 @@ public static class MacondoParser
             }
         }
     }
+
+
+    /// <summary>
+    /// Writes a Macondo play log entry for a play.
+    /// </summary>
+    /// <param name="play">The play.</param>
+    /// <param name="writer">The text writer to write to.</param>
+    public static void WritePlay(ScrabblePlay play, TextWriter writer)
+    {
+        writer.Write(play.PlayerNumber);
+        writer.Write(',');
+        writer.Write(play.GameID);
+        writer.Write(',');
+        writer.Write(play.TurnNumber);
+        writer.Write(',');
+        writer.Write(play.Rack);
+        writer.Write(',');
+        writer.Write(play.PlayString);
+        writer.Write(',');
+        writer.Write(play.Score);
+        writer.Write(',');
+        //writer.Write(play.TotalScore);
+        writer.Write(',');
+        writer.Write(play.TilesPlayed);
+        writer.Write(',');
+        writer.Write(play.Leave);
+        writer.Write(',');
+        writer.Write(play.Equity);
+        writer.Write(',');
+        writer.Write(play.TilesRemaining);
+        writer.Write(',');
+        //writer.Write(play.OppScore);
+        writer.WriteLine();
+    }
+
 }

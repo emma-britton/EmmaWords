@@ -1,7 +1,7 @@
 ﻿using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 
-namespace EmmaLib;
+namespace Emma.Lib;
 
 public class Gdi : IDisposable
 {
@@ -14,16 +14,14 @@ public class Gdi : IDisposable
     private readonly Graphics OriginalGfx;
     private BufferedGraphics BufferedGfx;
     private bool Exit;
+    private bool Events;
+    private System.Windows.Forms.Timer Timer = new();
 
-    public event RenderEventHandler? Render;
-    public event TickEventHandler? Tick;
-
-    public delegate void RenderEventHandler(Graphics gfx, Rectangle area);
-    public delegate void TickEventHandler();
-
+    public bool Started { get; set; }
+    public bool Visible { get; set; } = true;
     public Color BackColor { get; set; } = Color.FromArgb(255, 70, 70, 70);
     public int TickRate { get; set; } = 60;
-    public int MaxFrameRate { get; set; } = 60;
+    public int MaxFrameRate { get; set; } = 30;
     public int Frame { get; set; } = 0;
     public Rectangle Area { get; private set; }
     public Graphics Gfx { get; private set; }
@@ -39,43 +37,43 @@ public class Gdi : IDisposable
     public TextFormatFlags BottomCenter { get; } = TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom | TextFormatFlags.WordBreak;
 
 
-    public Gdi(Graphics graphics, Rectangle displayRectangle)
+    public Gdi(Form owner, bool events = true)
     {
-        OriginalGfx = graphics;
-        BufferedGfx = BufferedGraphicsManager.Current.Allocate(OriginalGfx, displayRectangle);
+        OriginalGfx = owner.CreateGraphics();
+        BufferedGfx = BufferedGraphicsManager.Current.Allocate(OriginalGfx, owner.DisplayRectangle);
         Gfx = BufferedGfx.Graphics;
-        Area = displayRectangle;
+        Area = owner.DisplayRectangle;
+        owner.Resize += (sender, e) => Resize(owner.DisplayRectangle);
+        owner.FormClosing += (sender, e) => Stop();
+        owner.Shown += (sender, e) => Start();
+        Events = events;
+        Timer.Tick += (sender, e) => InternalRender();
     }
 
 
     public void Resize(Rectangle displayRectangle)
     {
-        Gfx.Dispose();
-        BufferedGfx.Dispose();
-        BufferedGfx = BufferedGraphicsManager.Current.Allocate(OriginalGfx, displayRectangle);
-        Gfx = BufferedGfx.Graphics;
-        Area = displayRectangle;
+        try
+        {
+            Gfx.Dispose();
+            BufferedGfx.Dispose();
+            BufferedGfx = BufferedGraphicsManager.Current.Allocate(OriginalGfx, displayRectangle);
+            Gfx = BufferedGfx.Graphics;
+            Area = displayRectangle;
+        }
+        catch
+        {
+        }
     }
 
 
     public void Start()
     {
+        if (Started) return;
+        Started = true;
+
         ThreadPool.QueueUserWorkItem(state => InternalTick());
-        var next = DateTime.UtcNow;
-
-        while (!Exit)
-        {
-            InternalRender();
-            Application.DoEvents();
-
-            next = next.AddMicroseconds(1000000 / MaxFrameRate);
-            int sleepNeeded = (int)(next - DateTime.UtcNow).TotalMilliseconds;
-
-            if (sleepNeeded > 0)
-            {
-                Thread.Sleep(sleepNeeded);
-            }
-        }
+        InternalRender();
     }
 
 
@@ -86,7 +84,7 @@ public class Gdi : IDisposable
         while (!Exit)
         {
             Frame++;
-            Tick?.Invoke();
+            Tick();
 
             next = next.AddMicroseconds(1000000 / TickRate);
             int sleepNeeded = (int)(next - DateTime.UtcNow).TotalMilliseconds;
@@ -101,29 +99,53 @@ public class Gdi : IDisposable
 
     private void InternalRender()
     {
-        lock (Gfx)
-        {
-            Gfx.SmoothingMode = SmoothingMode.HighQuality;
-            Gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            Gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            Gfx.Clear(BackColor);
-        }
-
-        Render?.Invoke(Gfx, Area);
-
         try
         {
-            lock (Gfx)
+            Timer.Stop();
+            var next = DateTime.UtcNow;
+
+            if (Visible)
             {
-                BufferedGfx.Render();
+                lock (Gfx)
+                {
+                    Gfx.SmoothingMode = SmoothingMode.HighQuality;
+                    Gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    Gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                    Gfx.Clear(BackColor);
+                }
+
+                Render();
+
+                try
+                {
+                    lock (Gfx)
+                    {
+                        BufferedGfx.Render();
+                    }
+                }
+                catch { }
+            }
+
+            next = next.AddMicroseconds(1000000 / MaxFrameRate);
+            int sleepNeeded = (int)(next - DateTime.UtcNow).TotalMilliseconds;
+            if (sleepNeeded < 1) sleepNeeded = 1;
+
+            Timer.Interval = sleepNeeded;
+
+            if (!Timer.Enabled)
+            {
+                Timer.Start();
             }
         }
-        catch { }
+        catch
+        {
+        }
     }
 
 
     public void Stop()
     {
+        Started = false;
         Exit = true;
     }
 
@@ -285,7 +307,6 @@ public class Gdi : IDisposable
     }
 
 
-
     public void DrawFitTextOneLine(string? text, string fontName, Color color, RectangleF rectangle, TextFormatFlags format, bool bold = false, float maxSize = 1000)
     {
         if (text == null) return;
@@ -323,5 +344,32 @@ public class Gdi : IDisposable
     public void FillRectangle(Color color, RectangleF rect)
     {
         Gfx.FillRectangle(GetBrush(color), rect);
+    }
+
+
+    public virtual void HandleKey(KeyEventArgs e)
+    {
+    }
+
+
+    public virtual void HandleMouse(MouseEventArgs e)
+    {
+
+    }
+
+
+    public virtual void HandleMessage(StreamMessage message)
+    {
+
+    }
+
+
+    public virtual void Render()
+    {
+    }
+
+
+    public virtual void Tick()
+    {
     }
 }

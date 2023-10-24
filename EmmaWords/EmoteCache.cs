@@ -2,75 +2,70 @@
 using System.IO;
 using System.Net;
 
-namespace EmmaWords
+namespace Emma.Stream;
+
+public class EmoteCache
 {
-    public class EmoteCache
+    private readonly Dictionary<string, Image> Cache = new();
+
+    public Image LoadTwitch(string key, int size)
     {
-        private readonly Dictionary<string, Image> Cache = new();
-
-        public Image LoadTwitch(string key)
+        if (!Cache.ContainsKey(key))
         {
-            if (!Cache.ContainsKey(key))
+            try
             {
-                try
+                using var client = new WebClient();
+                string tempfile = @"C:\Users\huggl\emotes\" + key + ".gif";
+
+                if (!File.Exists(tempfile))
                 {
-                    using (var client = new WebClient())
+                    string url = @"https://static-cdn.jtvnw.net/emoticons/v2/" + key + "/default/light/3.0";
+                    client.DownloadFile(new Uri(url), tempfile);
+
+                    using var collection = new MagickImageCollection(tempfile);
+                    collection.Coalesce();
+
+                    foreach (var image in collection)
                     {
-                        string tempfile = @"C:\Users\huggl\emotes\" + key + ".gif";
-
-                        if (!File.Exists(tempfile))
-                        {
-                            string url = @"https://static-cdn.jtvnw.net/emoticons/v2/" + key + "/default/light/3.0";
-                            client.DownloadFile(new Uri(url), tempfile);
-
-                            using (var collection = new MagickImageCollection(tempfile))
-                            {
-                                collection.Coalesce();
-
-                                foreach (var image in collection)
-                                {
-                                    image.Resize((int)StartScreen.EMOTE_SIZE, (int)StartScreen.EMOTE_SIZE);
-                                }
-
-                                collection.Write(tempfile);
-                            }
-                        }
-
-                        Cache[key] = Image.FromFile(tempfile);
+                        image.Resize(size, size);
                     }
+
+                    collection.Write(tempfile);
                 }
-                catch
-                {
-                    Cache[key] = new Bitmap(1, 1);
-                }
+
+                Cache[key] = Image.FromFile(tempfile);
             }
-
-            return Cache[key];
-        }
-
-      
-        public Image? LoadCustom(string key)
-        {
-            if (!Cache.ContainsKey(key))
+            catch
             {
-                string emoteFile = @"C:\Users\huggl\emotes\7tv\" + key + ".gif";
+                Cache[key] = new Bitmap(1, 1);
+            }
+        }
 
-                if (File.Exists(emoteFile))
-                {
-                    Cache[key] = Image.FromFile(emoteFile);
-                    return Cache[key];
-                }
+        return Cache[key];
+    }
 
-                return null;
+  
+    public Image? LoadCustom(string key)
+    {
+        if (!Cache.ContainsKey(key))
+        {
+            string emoteFile = @"C:\Users\huggl\emotes\7tv\" + key + ".gif";
+
+            if (File.Exists(emoteFile))
+            {
+                Cache[key] = Image.FromFile(emoteFile);
+                return Cache[key];
             }
 
-            return Cache[key];
+            return null;
         }
 
+        return Cache[key];
+    }
 
-        public Image? Get(string key)
-        {
-            return Cache.GetValueOrDefault(key);
-        }
+
+    public Image? Get(string key)
+    {
+        return Cache.GetValueOrDefault(key);
     }
 }

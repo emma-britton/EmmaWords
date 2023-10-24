@@ -1,11 +1,16 @@
 ﻿
-namespace EmmaLib;
+namespace Emma.Lib;
 
 /// <summary>
 /// Represents a play in a game of scrabble. This includes moves, exchanges and passes.
 /// </summary>
 public class ScrabblePlay
 {
+    /// <summary>
+    /// Unique game identifier.
+    /// </summary>
+    public string? GameID { get; set; }
+
     /// <summary>
     /// Unique play identifier, comprising unique game identifier and turn number.
     /// </summary>
@@ -72,9 +77,14 @@ public class ScrabblePlay
     public int PassNumber { get; set; }
 
     /// <summary>
-    /// The word played.
+    /// The primary word played. If only one tile was played, this may be either of the words formed.
     /// </summary>
     public string? Word { get; set; }
+
+    /// <summary>
+    /// Additional words formed by crossing with the primary word.
+    /// </summary>
+    public IList<string>? AdditionalWords { get; set; }
 
     /// <summary>
     /// The play as described by Macondo ('.' represents tile already played).
@@ -115,5 +125,15 @@ public enum ScrabblePlayType
     /// <summary>
     /// The player exchanged tiles.
     /// </summary>
-    Exchange
+    Exchange,
+
+    /// <summary>
+    /// The player gained points for other player's remaining tiles.
+    /// </summary>
+    Out,
+
+    /// <summary>
+    /// The player lost points due to their remaining tiles.
+    /// </summary>
+    RemainingTiles
 }

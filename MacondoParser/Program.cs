@@ -1,9 +1,18 @@
-﻿using EmmaLib;
+﻿using Emma.Lib;
+using Microsoft.Extensions.Configuration;
 
-namespace MacondoParser;
+namespace Emma.MacondoParser;
 
 internal class Program
 {
+    internal static IConfigurationRoot Config { get; }
+
+    static Program()
+    {
+        Config = new ConfigurationBuilder().AddJsonFile("appSettings.json", true, true).Build();
+    }
+
+
     private static int Main(string[] args)
     {
         try

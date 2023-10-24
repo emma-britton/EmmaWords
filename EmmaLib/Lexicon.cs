@@ -1,21 +1,38 @@
 ﻿using System.Collections;
 
-namespace EmmaLib;
+namespace Emma.Lib;
 
 /// <summary>
 /// A collection of words that are playable under a particular rule set.
 /// </summary>
 public class Lexicon : IEnumerable<string>
 {
+    private ILookup<string, string>? m_Anagrams;
+
     private readonly SortedSet<string> Words = new();
     private readonly Dictionary<string, int> Adjustments = new();
-    private ILookup<string, string>? Anagrams;
-
-
+    
     /// <summary>
     /// The lexicon name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Maps alphagrams to words in this lexicon.
+    /// </summary>
+    public ILookup<string, string> Alphagrams
+    {
+        get
+        {
+            m_Anagrams ??= Words.ToLookup(w => new string(w.Order().ToArray()));
+            return m_Anagrams;
+        }
+    }
+
+    /// <summary>
+    /// Number of words in the lexicon.
+    /// </summary>
+    public int WordCount => Words.Count;
 
 
     /// <summary>
@@ -114,10 +131,10 @@ public class Lexicon : IEnumerable<string>
     /// <param name="alphagram">The alphagram.</param>
     public IEnumerable<string> GetAnagrams(string alphagram)
     {
-        Anagrams ??= Words.ToLookup(w => new string(w.Order().ToArray()));
+        m_Anagrams ??= Words.ToLookup(w => new string(w.Order().ToArray()));
 
         string sorted = new(alphagram.Order().ToArray());
-        return Anagrams[sorted];
+        return m_Anagrams[sorted];
     }
 
 

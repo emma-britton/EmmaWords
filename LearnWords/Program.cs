@@ -1,17 +1,23 @@
-namespace LearnWords
+using Emma.Lib;
+using Emma.WordLearner.Properties;
+
+namespace Emma.WordLearner;
+
+static class Program
 {
-    internal static class Program
+    [STAThread]
+    static void Main()
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        ApplicationConfiguration.Initialize();
+
+        string baseFolder = Settings.Default.BaseFolder;
+
+        if (string.IsNullOrWhiteSpace(baseFolder))
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Startup());
+            baseFolder = Application.StartupPath;
         }
+
+        var wordService = new WordService(baseFolder);
+        Application.Run(new WordLearnConfig(wordService));
     }
 }

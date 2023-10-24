@@ -8,11 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EmmaWords.Properties {
+namespace Emma.Stream.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.8.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,33 +20,6 @@ namespace EmmaWords.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds\\dict\\enwiktionary-20221120-pages-articles.xml")]
-        public string WiktionaryXml {
-            get {
-                return ((string)(this["WiktionaryXml"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds\\dict\\dictionary.tsv")]
-        public string DictionaryFile {
-            get {
-                return ((string)(this["DictionaryFile"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds\\dict\\bonus.tsv")]
-        public string BonusFile {
-            get {
-                return ((string)(this["BonusFile"]));
             }
         }
         
@@ -61,60 +34,6 @@ namespace EmmaWords.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!emma")]
-        public string CommandPrefix {
-            get {
-                return ((string)(this["CommandPrefix"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds\\list")]
-        public string WordListFolder {
-            get {
-                return ((string)(this["WordListFolder"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int GameColumns {
-            get {
-                return ((int)(this["GameColumns"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int GameRows {
-            get {
-                return ((int)(this["GameRows"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int MinWordLength {
-            get {
-                return ((int)(this["MinWordLength"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("9")]
-        public int MaxWordLength {
-            get {
-                return ((int)(this["MaxWordLength"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("gurchy")]
         public string TwitchChannel {
             get {
@@ -124,28 +43,10 @@ namespace EmmaWords.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("gurchy")]
-        public string HomeChannel {
-            get {
-                return ((string)(this["HomeChannel"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("sz8wv9zmt41q73q0797x27vs0qrybw")]
         public string TwitchClientID {
             get {
                 return ((string)(this["TwitchClientID"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ndus6edsz5rm63r4r4hu9kh0jxsfks")]
-        public string TwitchOAuth {
-            get {
-                return ((string)(this["TwitchOAuth"]));
             }
         }
         
@@ -170,18 +71,36 @@ namespace EmmaWords.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        public string ShortCommandPrefix {
+        public string CommandPrefix {
             get {
-                return ((string)(this["ShortCommandPrefix"]));
+                return ((string)(this["CommandPrefix"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds\\learn")]
-        public string LearnFolder {
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds")]
+        public string BaseFolder {
             get {
-                return ((string)(this["LearnFolder"]));
+                return ((string)(this["BaseFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string EmoteCache {
+            get {
+                return ((string)(this["EmoteCache"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("nsdxs705oj9zw9q2h9faltxpo0pkrl")]
+        public string TwitchOAuth {
+            get {
+                return ((string)(this["TwitchOAuth"]));
             }
         }
     }
