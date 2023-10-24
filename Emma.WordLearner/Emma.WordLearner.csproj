@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <BaseOutputPath>..\release\WordLearner</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\Emma.Lib\lexicon\CEL.txt" Link="lexicon\CEL.txt" />
+    <Content Include="..\Emma.Lib\lexicon\CSW21.txt" Link="lexicon\CSW21.txt" />
+    <Content Include="..\Emma.Lib\lexicon\NWL20.txt" Link="lexicon\NWL20.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="learn\" />
+    <Folder Include="lexicon\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Emma.Lib\Emma.Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="utility\CSW-utility.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="utility\CSW21-utility.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

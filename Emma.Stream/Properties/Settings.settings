@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Emma.Stream.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TwitchUsername" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">emma_is_bot</Value>
+    </Setting>
+    <Setting Name="TwitchChannel" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">gurchy</Value>
+    </Setting>
+    <Setting Name="TwitchClientID" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">sz8wv9zmt41q73q0797x27vs0qrybw</Value>
+    </Setting>
+    <Setting Name="TwitchAccessToken" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">m8xlxqjxsbblpboopw1f7kkw481vvd</Value>
+    </Setting>
+    <Setting Name="StartMusic" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\huggl\streaming\strim.wav</Value>
+    </Setting>
+    <Setting Name="CommandPrefix" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="BaseFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\huggl\wirds</Value>
+    </Setting>
+    <Setting Name="EmoteCache" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TwitchOAuth" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">nsdxs705oj9zw9q2h9faltxpo0pkrl</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
