@@ -10,6 +10,7 @@ public partial class CommandParser
     private readonly Dictionary<string, Func<string[], string?>> Commands = new();
     private readonly Dictionary<string, string> Aliases = new();
     private readonly Dictionary<string, string> HelpMessages = new();
+    private readonly Dictionary<string, Func<string, string?>> Rewards = new();
 
     public string Username => m_Username;
 
@@ -78,6 +79,12 @@ public partial class CommandParser
     }
 
 
+    public void AddReward(string name, Func<string, string?> command)
+    {
+        Rewards[name.ToLower()] = command;
+    }
+
+
     public string? InterpretCommand(StreamMessage message, string command)
     {
         var args = command.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToArray();
@@ -98,6 +105,24 @@ public partial class CommandParser
 
         return null;
         //return $"Unknown command - try {Program.Config["CommandPrefix"]}help";
+    }
+
+
+    public string? InterpretReward(StreamMessage message)
+    {
+        m_Username = message.Username;
+
+        if (message.RewardName != null)
+        {
+            string rewardName = message.RewardName.ToLower();
+
+            if (Rewards.TryGetValue(rewardName, out var function))
+            {
+                return function(rewardName);
+            }
+        }
+
+        return null;
     }
 
 

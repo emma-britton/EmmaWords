@@ -26,10 +26,11 @@ internal class Program
                 commandParser,
                 Config["CommandPrefix"],
                 Config["TwitchClientID"],
-                Config["TwitchAccessToken"],
+                Config["TwitchBotAccessToken"],
                 Config["TwitchUsername"],
-                Config["TwitchOAuth"],
-                Config["TwitchChannel"]
+                Config["TwitchChannelAccessToken"],
+                Config["TwitchChannel"],
+                Config["TwitchChannelID"]
             );
 
             Console.WriteLine("Starting Emma Is Bot...");
@@ -46,7 +47,7 @@ internal class Program
                 }
                 else if (command != null)
                 {
-                    var message = new StreamMessage("(console)", command, null, true);
+                    var message = new StreamMessage("(console)", command, null, true, null);
                     string? result = commandParser.InterpretCommand(message, command);
 
                     if (result != null)

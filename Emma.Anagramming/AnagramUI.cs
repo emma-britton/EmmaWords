@@ -16,13 +16,16 @@ public class AnagramUI : Gdi
 
     public override void HandleMessage(StreamMessage message)
     {
-        string[] guesses = message.Text.ToUpper().Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (string word in guesses)
+        if (message.Text != null)
         {
-            if (Regex.IsMatch(word, "[A-Z]+"))
+            string[] guesses = message.Text.ToUpper().Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string word in guesses)
             {
-                Game.SubmitGuess(message.Username, word);
+                if (Regex.IsMatch(word, "[A-Z]+"))
+                {
+                    Game.SubmitGuess(message.Username, word);
+                }
             }
         }
     }

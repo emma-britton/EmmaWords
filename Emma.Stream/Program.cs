@@ -49,7 +49,7 @@ static class Program
             }
             else if (command != null)
             {
-                var message = new StreamMessage("(console)", command, null, true);
+                var message = new StreamMessage("(console)", command, null, true, null);
                 string? result = commandParser.InterpretCommand(message, command);
 
                 if (result != null)

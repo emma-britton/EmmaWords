@@ -136,7 +136,13 @@ class StartScreen : Gdi
 
     public override void HandleMessage(StreamMessage message)
     {
-        string text = message.Text;
+        string? text = message.Text;
+
+        if (text == null && message.RewardName != null)
+        {
+            text = message.Username + " redeemed " + message.RewardName;
+        }
+
         var emoteIds = new List<string>();
 
         if (message.Emotes != null)

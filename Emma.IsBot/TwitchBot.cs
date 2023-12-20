@@ -5,6 +5,8 @@ using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
+using TwitchLib.PubSub;
+using TwitchLib.PubSub.Events;
 
 namespace Emma.IsBot;
 
@@ -12,29 +14,33 @@ public class TwitchBot
 {
     public event EventHandler<StreamMessage>? Message;
     public event EventHandler<EventArgs>? ChatCleared;
-
+    
     private readonly TwitchClient Client;
     private readonly TwitchAPI API;
     private readonly CommandParser CommandParser;
+    private readonly TwitchPubSub PubSub;
 
     private readonly string CommandPrefix;
     private readonly string BotUsername;
-    private readonly string OAuthToken;
-    private readonly string Channel;
+    private readonly string BotAccessToken;
+    private readonly string ChannelAccessToken;
+    private readonly string ChannelName;
+    private readonly string ChannelId;
 
 
     public TwitchBot(
         CommandParser commandParser,
         string commandPrefix,
         string clientID, 
-        string accessToken, 
+        string botAccessToken, 
         string botUsername, 
-        string oAuthToken, 
-        string channel)
+        string channelAccessToken, 
+        string channelName,
+        string channelId)
     {
         API = new TwitchAPI();
         API.Settings.ClientId = clientID;
-        API.Settings.AccessToken = accessToken;
+        API.Settings.AccessToken = botAccessToken;
 
         var clientOptions = new ClientOptions
         {
@@ -48,27 +54,55 @@ public class TwitchBot
         CommandParser = commandParser;
         CommandPrefix = commandPrefix;
         BotUsername = botUsername;
-        OAuthToken = oAuthToken;
-        Channel = channel;
+        BotAccessToken = botAccessToken;
+        ChannelAccessToken = channelAccessToken;
+        ChannelName = channelName;
+        ChannelId = channelId;
+
+        PubSub = new TwitchPubSub();
+    }
+
+    private void Pubsub_OnChannelPointsRewardRedeemed(object? sender, OnChannelPointsRewardRedeemedArgs e)
+    {
+        string rewardName = e.RewardRedeemed.Redemption.Reward.Title;
+        string userName = e.RewardRedeemed.Redemption.User.Login;
+
+        var message = new StreamMessage(userName, null, null, userName.Equals(ChannelName, StringComparison.OrdinalIgnoreCase), rewardName);
+        Message?.Invoke(this, message);
+
+        string? result = CommandParser.InterpretReward(message);
+
+        if (result != null)
+        {
+            Client.SendMessage(ChannelName, result);
+        }
+    }
+
+
+    private void Pubsub_OnPubSubServiceConnected(object? sender, EventArgs e)
+    {
+        Console.WriteLine("Connected to pubsub");
+        PubSub.ListenToChannelPoints(ChannelId);
+        PubSub.SendTopics(ChannelAccessToken);
     }
 
 
     public void Run()
     {
-        var credentials = new ConnectionCredentials(BotUsername, OAuthToken);
+        var credentials = new ConnectionCredentials(BotUsername, BotAccessToken);
 
-        Client.Initialize(credentials, Channel);
+        Client.Initialize(credentials, ChannelName);
+
+        //Client.OnLog += (s, e) => Console.WriteLine(e.Data);
         Client.OnMessageReceived += Client_OnMessageReceived;
         Client.OnConnected += Client_OnConnected;
         Client.OnChatCleared += Client_OnChatCleared;
-        Client.OnLog += Client_OnLog;
         Client.Connect();
-    }
 
-
-    private void Client_OnLog(object? sender, OnLogArgs e)
-    {
-        //Console.WriteLine(e.Data);
+        PubSub.OnLog += (s, e) => Console.WriteLine(e.Data);
+        PubSub.OnPubSubServiceConnected += Pubsub_OnPubSubServiceConnected;
+        PubSub.OnChannelPointsRewardRedeemed += Pubsub_OnChannelPointsRewardRedeemed;
+        PubSub.Connect();
     }
 
 
@@ -86,11 +120,11 @@ public class TwitchBot
 
     private void Client_OnConnected(object? sender, OnConnectedArgs e)
     {
-        Console.WriteLine("Connected to channel: " + Channel);
+        Console.WriteLine("Connected to channel: " + ChannelName);
 
         if (!string.IsNullOrWhiteSpace(Program.Config["JoinMessage"]))
         {
-            Client.SendMessage(Channel, Program.Config["JoinMessage"]);
+            Client.SendMessage(ChannelName, Program.Config["JoinMessage"]);
         }
     }
 
@@ -102,10 +136,10 @@ public class TwitchBot
             return;
         }
 
-        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes, e.ChatMessage.IsBroadcaster);
+        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes, e.ChatMessage.IsBroadcaster, null);
 
         Message?.Invoke(this, message);
-        string command = message.Text;
+        string command = e.ChatMessage.Message;
 
         if (string.IsNullOrWhiteSpace(CommandPrefix) || command.StartsWith(CommandPrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -128,6 +162,6 @@ public class TwitchBot
 
     public void SendMessage(string message)
     {
-        Client.SendMessage(Channel, message);
+        Client.SendMessage(ChannelName, message);
     }
 }

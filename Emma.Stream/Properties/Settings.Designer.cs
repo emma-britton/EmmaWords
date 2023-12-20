@@ -25,64 +25,10 @@ namespace Emma.Stream.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("emma_is_bot")]
-        public string TwitchUsername {
-            get {
-                return ((string)(this["TwitchUsername"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("gurchy")]
-        public string TwitchChannel {
-            get {
-                return ((string)(this["TwitchChannel"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sz8wv9zmt41q73q0797x27vs0qrybw")]
-        public string TwitchClientID {
-            get {
-                return ((string)(this["TwitchClientID"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("m8xlxqjxsbblpboopw1f7kkw481vvd")]
-        public string TwitchAccessToken {
-            get {
-                return ((string)(this["TwitchAccessToken"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\streaming\\strim.wav")]
-        public string StartMusic {
-            get {
-                return ((string)(this["StartMusic"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
         public string CommandPrefix {
             get {
                 return ((string)(this["CommandPrefix"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\huggl\\wirds")]
-        public string BaseFolder {
-            get {
-                return ((string)(this["BaseFolder"]));
             }
         }
         
@@ -97,10 +43,73 @@ namespace Emma.Stream.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("nsdxs705oj9zw9q2h9faltxpo0pkrl")]
-        public string TwitchOAuth {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchUsername {
             get {
-                return ((string)(this["TwitchOAuth"]));
+                return ((string)(this["TwitchUsername"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchChannel {
+            get {
+                return ((string)(this["TwitchChannel"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchChannelID {
+            get {
+                return ((string)(this["TwitchChannelID"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchClientID {
+            get {
+                return ((string)(this["TwitchClientID"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StartMusic {
+            get {
+                return ((string)(this["StartMusic"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BaseFolder {
+            get {
+                return ((string)(this["BaseFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchBotAccessToken {
+            get {
+                return ((string)(this["TwitchBotAccessToken"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TwitchChannelAccessToken {
+            get {
+                return ((string)(this["TwitchChannelAccessToken"]));
             }
         }
     }

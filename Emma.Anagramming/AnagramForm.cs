@@ -30,7 +30,8 @@ namespace Emma.Anagramming
                     "",
                     Properties.Settings.Default.TwitchUsername,
                     Properties.Settings.Default.TwitchOAuth,
-                    Properties.Settings.Default.TwitchChannel
+                    Properties.Settings.Default.TwitchChannel,
+                    ""
                 );
 
                 twitchBot.Message += Bot_Message;

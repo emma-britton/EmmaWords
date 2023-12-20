@@ -14,7 +14,9 @@ public class EmmaStream
     private readonly WordService WordService;
     private readonly CommandParser CommandParser;
     private readonly StartScreen StartScreen;
-    
+    private readonly Dictionary<string, HashSet<string>> Flowers = new();
+    private readonly Random Random = new();
+
     private ScrabbleUI? ScrabbleUI;
     private AnagramUI? AnagramUI;
     private WordLearnUI? LearnUI;
@@ -22,7 +24,7 @@ public class EmmaStream
     private string Player1Name = "Player 1";
     private string Player2Name = "Player 2";
     
-    public TwitchBot TwitchBot { get; }
+    public TwitchBot? TwitchBot { get; }
     public string Message { get; set; } = "stream starting soon";
     public Queue<string> PlayerQueue { get; set; } = new();
 
@@ -32,7 +34,9 @@ public class EmmaStream
         MainForm = mainForm;
         WordService = wordService;
         CommandParser = commandParser;
-        
+
+        commandParser.AddReward("flower of the day", Flower);
+
         CommandParser.AddCommand("discord", Discord, "discord -- Show the discord link");
         CommandParser.AddCommand("message", ChangeMessage, "message -- Change the message on the title screen");
         CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions");
@@ -53,7 +57,7 @@ public class EmmaStream
         commandParser.AddCommand("clear", Clear, "clear -- Clears the queue to play Scrabble");
         commandParser.AddCommand("raid", Raid, "raid -- Displays raid message");
         CommandParser.AddCommand("hug", Hug, "hug -- Send a hug");
-
+        CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden");
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
         CommandParser.AddAlias("msg", "message");
@@ -66,14 +70,34 @@ public class EmmaStream
             TwitchBot = new TwitchBot(commandParser,
             Properties.Settings.Default.CommandPrefix,
             Properties.Settings.Default.TwitchClientID,
-            Properties.Settings.Default.TwitchAccessToken,
+            Properties.Settings.Default.TwitchBotAccessToken,
             Properties.Settings.Default.TwitchUsername,
-            Properties.Settings.Default.TwitchOAuth,
-            Properties.Settings.Default.TwitchChannel);
+            Properties.Settings.Default.TwitchChannelAccessToken,
+            Properties.Settings.Default.TwitchChannel,
+            Properties.Settings.Default.TwitchChannelID);
 
             TwitchBot.ChatCleared += Bot_ChatCleared;
             TwitchBot.Message += Bot_Message;
             TwitchBot.Run();
+        }
+
+        string flowerFile = Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt");
+
+        if (File.Exists(flowerFile))
+        {
+            foreach (string line in File.ReadAllLines(flowerFile))
+            {
+                string[] parts = line.Split('\t');
+                string flower = parts[0];
+                string user = parts[1];
+
+                if (!Flowers.ContainsKey(user))
+                {
+                    Flowers.Add(user, new HashSet<string>());
+                }
+
+                Flowers[user].Add(flower);
+            }
         }
 
         StartScreen = new StartScreen(this, MainForm);
@@ -516,5 +540,81 @@ public class EmmaStream
     private string? Hug(params string[] args)
     {
         return $"@{CommandParser.Username} gurchyHug";
+    }
+
+
+    private string? Garden(params string[] args)
+    {
+        if (args.Length != 1) return CommandParser.Help("garden");
+
+        if (!Flowers.ContainsKey(CommandParser.Username))
+        {
+            Flowers.Add(CommandParser.Username, new HashSet<string>());
+        }
+
+        int flowerCount = Flowers[CommandParser.Username].Count;
+
+        if (flowerCount == 0)
+        {
+            return $"@{CommandParser.Username} has no flowers in their garden";
+        }
+        else
+        {
+            return $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", Flowers[CommandParser.Username])}";
+        }
+    }
+
+
+    private string? Flower(string rewardName)
+    {
+        if (!Flowers.ContainsKey(CommandParser.Username))
+        {
+            Flowers.Add(CommandParser.Username, new HashSet<string>());
+        }
+
+        string[] flowers =
+        {
+            "daffodil",
+            "harebell",
+            "meadow crane's-bill",
+            "red campion",
+            "tormentil",
+            "primrose",
+            "wild strawberry",
+            "herb robert",
+            "scarlet pimpernel",
+            "germander speedwell",
+            "oxeye daisy",
+            "sticky mouse-ear",
+            "corky-fruited water dropwort",
+            "red clover",
+            "ground ivy",
+            "rosebay willowherb",
+            "woolly thistle",
+            "early purple orchid",
+            "meadow vetchling",
+            "bird's-foot trefoil",
+            "field rose",
+            "shining crane's-bill",
+            "dove's-foot crane's-bill",
+            "lesser celandine",
+            "field bindweed",
+            "sweet violet",
+            "cuckoo flower",
+            "betony",
+            "snowdrop"
+        };
+
+        var unownedFlowers = flowers.Where(f => !Flowers[CommandParser.Username].Contains(f)).ToArray();
+
+        string randomFlower = unownedFlowers[Random.Next(unownedFlowers.Length)];
+        Flowers[CommandParser.Username].Add(randomFlower);
+        int flowerCount = Flowers[CommandParser.Username].Count;
+
+        string message = $"@{CommandParser.Username} has received: {randomFlower} gurchyFlower " + 
+            $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
+
+        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{randomFlower}\t{CommandParser.Username}\r\n");
+        return message;
     }
 }
