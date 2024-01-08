@@ -67,7 +67,9 @@ public class TwitchBot
         string rewardName = e.RewardRedeemed.Redemption.Reward.Title;
         string userName = e.RewardRedeemed.Redemption.User.Login;
 
-        var message = new StreamMessage(userName, null, null, userName.Equals(ChannelName, StringComparison.OrdinalIgnoreCase), rewardName);
+        var message = new StreamMessage(userName, null, null, userName.Equals(ChannelName, StringComparison.OrdinalIgnoreCase),
+            rewardName: rewardName);
+
         Message?.Invoke(this, message);
 
         string? result = CommandParser.InterpretReward(message);
@@ -136,7 +138,8 @@ public class TwitchBot
             return;
         }
 
-        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes, e.ChatMessage.IsBroadcaster, null);
+        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes, 
+            e.ChatMessage.IsBroadcaster, e.ChatMessage.IsModerator, e.ChatMessage.IsVip);
 
         Message?.Invoke(this, message);
         string command = e.ChatMessage.Message;

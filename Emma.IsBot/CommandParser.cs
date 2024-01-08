@@ -7,10 +7,9 @@ public partial class CommandParser
 {
     private string m_Username;
     private readonly WordService WordService;
-    private readonly Dictionary<string, Func<string[], string?>> Commands = new();
+    private readonly Dictionary<string, Command> Commands = new();
     private readonly Dictionary<string, string> Aliases = new();
-    private readonly Dictionary<string, string> HelpMessages = new();
-    private readonly Dictionary<string, Func<string, string?>> Rewards = new();
+    private readonly Dictionary<string, Func<string, string, string?>> Rewards = new();
 
     public string Username => m_Username;
 
@@ -20,28 +19,27 @@ public partial class CommandParser
         WordService = wordService;
         m_Username = "(console)";
 
-        AddCommand("affix", Affix, "affix WORD -- Show prefixes and suffixes for a word");
-        AddCommand("anagram", Anagram, "anagram WORD -- Show anagrams of a word, if allowed");
-        AddCommand("check", Check, "check WORD -- Check if a word is in the current list");
-        AddCommand("cheet", Cheet, "cheet -- Toggle whether the anagram command is allowed");
-        AddCommand("commands", ListCommands, "commands -- Lists available commands");
-        AddCommand("contains", Contains, "contains WORD -- Show words containing a word");
-        AddCommand("count", Count, "count -- Report the number of words in the current lexicon");
-        AddCommand("define", Define, "define WORD [POS] [NUMBER] -- Show a dictionary definition");
-        AddCommand("egg", Egg, "egg");
-        AddCommand("help", Help, "help COMMAND -- Show help for another command");
-        AddCommand("hi", Hi, "hi -- say hi");
-        AddCommand("hook", Hook, "hook WORD -- Show hooks for a word");
-        AddCommand("leave", Leave, "leave RACK -- Evaluate a leave");
-        AddCommand("lexicon", SetLexicon, "lexicon [{NAME | all}] -- Set the active lexicon, or show available lexicons");
-        AddCommand("lurk", Lurk, "lurk -- This is just here so !lurk doesn't make an error message");
-        AddCommand("nicefind", NiceFind, "nicefind WORD -- Say that a word was a nice find");
-        AddCommand("pattern", Pattern, "pattern REGEX -- Search for words matching a regular expression");
-        AddCommand("prefix", Prefix, "prefix WORD -- Show prefixes for a word");
-        AddCommand("prob", Prob, "prob WORD -- Show relative probability of word, compared to other words of the same length");
-        AddCommand("related", Related, "related WORD -- Show alternative forms and inflections of a word");
-        AddCommand("rules", Rules, "rules [NAME] -- Set the active rule set, or show available rule sets");
-        AddCommand("suffix", Suffix, "suffix WORD -- Show suffixes for a word");
+        AddCommand("affix", Affix, "affix WORD -- Show prefixes and suffixes for a word", Permission.Anyone);
+        AddCommand("anagram", Anagram, "anagram WORD -- Show anagrams of a word, if allowed", Permission.Anyone);
+        AddCommand("check", Check, "check WORD -- Check if a word is in the current list", Permission.Anyone);
+        AddCommand("cheet", Cheet, "cheet -- Toggle whether the anagram command is allowed", Permission.VIP);
+        AddCommand("commands", ListCommands, "commands -- Lists available commands", Permission.Anyone);
+        AddCommand("contains", Contains, "contains WORD -- Show words containing a word", Permission.Anyone);
+        AddCommand("count", Count, "count -- Report the number of words in the current lexicon", Permission.Anyone);
+        AddCommand("define", Define, "define WORD [POS] [NUMBER] -- Show a dictionary definition", Permission.Anyone);
+        AddCommand("help", Help, "help COMMAND -- Show help for another command", Permission.Anyone);
+        AddCommand("hi", Hi, "hi -- say hi", Permission.Anyone);
+        AddCommand("hook", Hook, "hook WORD -- Show hooks for a word", Permission.Anyone);
+        AddCommand("leave", Leave, "leave RACK -- Evaluate a leave", Permission.Anyone);
+        AddCommand("lexicon", SetLexicon, "lexicon [{NAME | all}] -- Set the active lexicon, or show available lexicons", Permission.VIP);
+        AddCommand("lurk", Lurk, "lurk -- This is just here so !lurk doesn't make an error message", Permission.Anyone);
+        AddCommand("nicefind", NiceFind, "nicefind WORD -- Say that a word was a nice find", Permission.Anyone);
+        AddCommand("pattern", Pattern, "pattern REGEX -- Search for words matching a regular expression", Permission.Anyone);
+        AddCommand("prefix", Prefix, "prefix WORD -- Show prefixes for a word", Permission.Anyone);
+        AddCommand("prob", Prob, "prob WORD -- Show relative probability of word, compared to other words of the same length", Permission.Anyone);
+        AddCommand("related", Related, "related WORD -- Show alternative forms and inflections of a word", Permission.Anyone);
+        AddCommand("rules", Rules, "rules [NAME] -- Set the active rule set, or show available rule sets", Permission.VIP);
+        AddCommand("suffix", Suffix, "suffix WORD -- Show suffixes for a word", Permission.Anyone);
 
         AddAlias("anag", "anagram");
         AddAlias("dict", "lexicon");
@@ -66,10 +64,9 @@ public partial class CommandParser
     }
 
 
-    public void AddCommand(string keyword, Func<string[], string?> command, string help)
+    public void AddCommand(string keyword, Func<string[], string?> action, string help, Permission permission)
     {
-        Commands[keyword.ToLower()] = command;
-        HelpMessages[keyword.ToLower()] = help;
+        Commands[keyword.ToLower()] = new Command(keyword, action, help, permission);
     }
 
 
@@ -79,32 +76,41 @@ public partial class CommandParser
     }
 
 
-    public void AddReward(string name, Func<string, string?> command)
+    public void AddReward(string name, Func<string, string, string?> command)
     {
         Rewards[name.ToLower()] = command;
     }
 
 
-    public string? InterpretCommand(StreamMessage message, string command)
+    public string? InterpretCommand(StreamMessage message, string argstring)
     {
-        var args = command.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        var args = argstring.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToArray();
         if (args.Length == 0) return null;
 
         m_Username = message.Username;
 
         string keyword = args[0].ToLower();
 
-        if (Commands.TryGetValue(keyword, out var function))
+        if (Commands.TryGetValue(keyword, out var command))
         {
-            return function(args);
+            if (!command.HasPermission(message))
+            {
+                return $"{command}: permission denied";
+            }
+
+            return command.Action(args);
         }
-        else if (Aliases.TryGetValue(keyword, out var alias) && Commands.TryGetValue(alias, out var aliasFunction))
+        else if (Aliases.TryGetValue(keyword, out var alias) && Commands.TryGetValue(alias, out var aliasCommand))
         {
-            return aliasFunction(args);
+            if (!aliasCommand.HasPermission(message))
+            {
+                return $"{aliasCommand}: permission denied";
+            }
+
+            return aliasCommand.Action(args);
         }
 
         return null;
-        //return $"Unknown command - try {Program.Config["CommandPrefix"]}help";
     }
 
 
@@ -118,7 +124,7 @@ public partial class CommandParser
 
             if (Rewards.TryGetValue(rewardName, out var function))
             {
-                return function(rewardName);
+                return function(Username, rewardName);
             }
         }
 
@@ -134,19 +140,19 @@ public partial class CommandParser
 
     public string? Help(params string[] args)
     {
-        string? command = args.LastOrDefault()?.ToLower();
+        string? commandName = args.LastOrDefault()?.ToLower();
 
-        if (command == "commands")
+        if (commandName == "commands")
         {
             return ListCommands(args);
         }
-        else if (command == null)
+        else if (commandName == null)
         {
             return $"Syntax: <command> [OPTIONS ...]\\r\\n" + ListCommands(args);
         }
-        else if (HelpMessages.TryGetValue(command, out string? helpMessage))
+        else if (Commands.TryGetValue(commandName, out var command))
         {
-            return helpMessage;
+            return command.Help;
         }
 
         return "Unknown command. Available commands: " + ListCommands(args);

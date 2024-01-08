@@ -47,7 +47,7 @@ internal class Program
                 }
                 else if (command != null)
                 {
-                    var message = new StreamMessage("(console)", command, null, true, null);
+                    var message = new StreamMessage("(console)", command, null, true);
                     string? result = commandParser.InterpretCommand(message, command);
 
                     if (result != null)

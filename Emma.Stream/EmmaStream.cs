@@ -37,27 +37,29 @@ public class EmmaStream
 
         commandParser.AddReward("flower of the day", Flower);
 
-        CommandParser.AddCommand("discord", Discord, "discord -- Show the discord link");
-        CommandParser.AddCommand("message", ChangeMessage, "message -- Change the message on the title screen");
-        CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions");
-        CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer");
-        CommandParser.AddCommand("stream", Stream, "stream MODE -- Set the stream mode");
-        CommandParser.AddCommand("start", Start, "start -- Shows the 'stream start' screen");
-        CommandParser.AddCommand("end", End, "end -- Shows the 'stream end' screen");
-        CommandParser.AddCommand("brb", Brb, "brb -- Shows the 'be right back' screen");
-        CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD");
-        CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD");
-        CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game");
-        commandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set");
-        commandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma");
-        commandParser.AddCommand("next", Next, "next -- Starts the next game of Scrabble");
-        commandParser.AddCommand("add", Add, "add PLAYER -- Adds a game of Scrabble to the queue");
-        commandParser.AddCommand("remove", Remove, "remove PLAYER -- Removes a game of Scrabble from the queue");
-        commandParser.AddCommand("skip", Skip, "skip -- Skips the current game of Scrabble");
-        commandParser.AddCommand("clear", Clear, "clear -- Clears the queue to play Scrabble");
-        commandParser.AddCommand("raid", Raid, "raid -- Displays raid message");
-        CommandParser.AddCommand("hug", Hug, "hug -- Send a hug");
-        CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden");
+        CommandParser.AddCommand("discord", Discord, "discord -- Show the discord link", Permission.Anyone);
+        CommandParser.AddCommand("message", ChangeMessage, "message -- Change the message on the title screen", Permission.Moderator);
+        CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions", Permission.Anyone);
+        CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer", Permission.VIP);
+        CommandParser.AddCommand("stream", Stream, "stream MODE -- Set the stream mode", Permission.Moderator);
+        CommandParser.AddCommand("start", Start, "start -- Shows the 'stream start' screen", Permission.Moderator);
+        CommandParser.AddCommand("end", End, "end -- Shows the 'stream end' screen", Permission.Moderator);
+        CommandParser.AddCommand("brb", Brb, "brb -- Shows the 'be right back' screen", Permission.Moderator);
+        CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
+        CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
+        CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
+        commandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
+        commandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
+        commandParser.AddCommand("next", Next, "next -- Starts the next game of Scrabble", Permission.VIP);
+        commandParser.AddCommand("add", Add, "add PLAYER -- Adds a game of Scrabble to the queue", Permission.VIP);
+        commandParser.AddCommand("remove", Remove, "remove PLAYER -- Removes a game of Scrabble from the queue", Permission.VIP);
+        commandParser.AddCommand("skip", Skip, "skip -- Skips the current game of Scrabble", Permission.VIP);
+        commandParser.AddCommand("clear", Clear, "clear -- Clears the queue to play Scrabble", Permission.VIP);
+        commandParser.AddCommand("raid", Raid, "raid -- Displays raid message", Permission.Anyone);
+        CommandParser.AddCommand("hug", Hug, "hug -- Send a hug", Permission.Anyone);
+        CommandParser.AddCommand("flower", GiveFlower, "flower VIEWER -- Give someone a flower", Permission.Moderator);
+        CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden", Permission.Anyone);
+
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
         CommandParser.AddAlias("msg", "message");
@@ -88,15 +90,19 @@ public class EmmaStream
             foreach (string line in File.ReadAllLines(flowerFile))
             {
                 string[] parts = line.Split('\t');
-                string flower = parts[0];
-                string user = parts[1];
 
-                if (!Flowers.ContainsKey(user))
+                if (parts.Length == 2)
                 {
-                    Flowers.Add(user, new HashSet<string>());
-                }
+                    string flower = parts[0];
+                    string user = parts[1];
 
-                Flowers[user].Add(flower);
+                    if (!Flowers.ContainsKey(user))
+                    {
+                        Flowers.Add(user, new HashSet<string>());
+                    }
+
+                    Flowers[user].Add(flower);
+                }
             }
         }
 
@@ -565,56 +571,111 @@ public class EmmaStream
     }
 
 
-    private string? Flower(string rewardName)
+
+
+    private string? Flower(string username, string rewardName)
     {
-        if (!Flowers.ContainsKey(CommandParser.Username))
+        username = username.ToLower();
+
+        if (!Flowers.TryGetValue(username, out var value))
         {
-            Flowers.Add(CommandParser.Username, new HashSet<string>());
+            value = [];
+            Flowers.Add(username, value);
         }
 
         string[] flowers =
         {
-            "daffodil",
-            "harebell",
-            "meadow crane's-bill",
-            "red campion",
-            "tormentil",
-            "primrose",
-            "wild strawberry",
-            "herb robert",
-            "scarlet pimpernel",
-            "germander speedwell",
-            "oxeye daisy",
-            "sticky mouse-ear",
-            "corky-fruited water dropwort",
-            "red clover",
-            "ground ivy",
-            "rosebay willowherb",
-            "woolly thistle",
-            "early purple orchid",
-            "meadow vetchling",
-            "bird's-foot trefoil",
-            "field rose",
-            "shining crane's-bill",
-            "dove's-foot crane's-bill",
-            "lesser celandine",
-            "field bindweed",
-            "sweet violet",
-            "cuckoo flower",
+            "autumn hawkbit",
             "betony",
-            "snowdrop"
+            "bird's-foot trefoil",
+            "biting stonecrop",
+            "bittersweet",
+            "black bryony",
+            "bluebell",
+            "bugle",
+            "butterbur",
+            "common spotted orchid",
+            "corky-fruited water dropwort",
+            "cowslip",
+            "creeping cinquefoil",
+            "cuckoo flower",
+            "cut-leaved crane's-bill",
+            "daffodil",
+            "daisy",
+            "devil's-bit scabious",
+            "dove's-foot crane's-bill",
+            "early purple orchid",
+            "enchanter's nightshade",
+            "eyebright",
+            "fairy flax",
+            "field bindweed",
+            "field forget-me-not",
+            "field rose",
+            "garlic mustard",
+            "germander speedwell",
+            "greater knapweed",
+            "ground ivy",
+            "guelder rose",
+            "harebell",
+            "heath milkwort",
+            "herb robert",
+            "lesser celandine",
+            "lesser trefoil",
+            "long-headed poppy",
+            "meadow crane's-bill",
+            "meadow vetchling",
+            "oxeye daisy",
+            "primrose",
+            "ragged robin",
+            "red campion",
+            "red clover",
+            "rosebay willowherb",
+            "sainfoin",
+            "scarlet pimpernel",
+            "shining crane's-bill",
+            "snowdrop",
+            "southern marsh orchid",
+            "sticky mouse-ear",
+            "sweet violet",
+            "thyme-leaved speedwell",
+            "tormentil",
+            "tufted vetch",
+            "wild strawberry",
+            "woolly thistle",
+            "yarrow",
+            "yellow archangel"
         };
 
-        var unownedFlowers = flowers.Where(f => !Flowers[CommandParser.Username].Contains(f)).ToArray();
+        string[] rareFlowers =
+        {
+            "spiked star-of-bethlehem",
+            "lady orchid",
+            "fly orchid",
+            "lizard orchid",
+            "burnt orchid",
+            "bee orchid",
+            "spider orchid"
+        };
+
+        var unownedFlowers = flowers.Where(f => !value.Contains(f)).ToArray();
 
         string randomFlower = unownedFlowers[Random.Next(unownedFlowers.Length)];
-        Flowers[CommandParser.Username].Add(randomFlower);
-        int flowerCount = Flowers[CommandParser.Username].Count;
+        value.Add(randomFlower);
+        int flowerCount = value.Count;
 
-        string message = $"@{CommandParser.Username} has received: {randomFlower} gurchyFlower " + 
+        string message = $"@{username} has received: {randomFlower} gurchyFlower " + 
             $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
 
-        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{randomFlower}\t{CommandParser.Username}\r\n");
+        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{randomFlower}\t{username}\r\n");
         return message;
+    }
+
+
+    private string? GiveFlower(string[] args)
+    {
+        if (args.Length == 0) return CommandParser.Help("flower");
+
+        string username = args[1];
+        return Flower(username, "flower of the day");
     }
 }

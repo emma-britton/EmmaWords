@@ -14,6 +14,16 @@ public class StreamMessage
     public bool IsBroadcaster { get; }
 
     /// <summary>
+    /// Whether the message is sent by a moderator.
+    /// </summary>
+    public bool IsModerator { get; }
+
+    /// <summary>
+    /// Whether the message is sent by a VIP.
+    /// </summary>
+    public bool IsVIP { get; }
+
+    /// <summary>
     /// The emotes associated with the message.
     /// </summary>
     public List<Emote>? Emotes { get; }
@@ -42,12 +52,15 @@ public class StreamMessage
     /// <param name="emotes">The emotes associated with the message.</param>
     /// <param name="isBroadcaster">Whether the message is sent by the stream broadcaster.</param>
     /// <param name="rewardName">Name of the channel point reward that was redeemed, if any.</param>
-    public StreamMessage(string username, string? text, List<Emote>? emotes, bool isBroadcaster, string? rewardName)
+    public StreamMessage(string username, string? text, List<Emote>? emotes, bool isBroadcaster = false,
+        bool isModerator = false, bool isVIP = false, string? rewardName = null)
     {
         Username = username;
         Text = text;
         Emotes = emotes;
         IsBroadcaster = isBroadcaster;
+        IsModerator = isModerator;
+        IsVIP = isVIP;
         RewardName = rewardName;
     }
 }
