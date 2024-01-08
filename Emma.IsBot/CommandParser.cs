@@ -23,7 +23,7 @@ public partial class CommandParser
         AddCommand("anagram", Anagram, "anagram WORD -- Show anagrams of a word, if allowed", Permission.Anyone);
         AddCommand("check", Check, "check WORD -- Check if a word is in the current list", Permission.Anyone);
         AddCommand("cheet", Cheet, "cheet -- Toggle whether the anagram command is allowed", Permission.VIP);
-        AddCommand("commands", ListCommands, "commands -- Lists available commands", Permission.Anyone);
+        AddCommand("commands", ListCommands, "commands -- List available commands", Permission.Anyone);
         AddCommand("contains", Contains, "contains WORD -- Show words containing a word", Permission.Anyone);
         AddCommand("count", Count, "count -- Report the number of words in the current lexicon", Permission.Anyone);
         AddCommand("define", Define, "define WORD [POS] [NUMBER] -- Show a dictionary definition", Permission.Anyone);
@@ -32,7 +32,7 @@ public partial class CommandParser
         AddCommand("hook", Hook, "hook WORD -- Show hooks for a word", Permission.Anyone);
         AddCommand("leave", Leave, "leave RACK -- Evaluate a leave", Permission.Anyone);
         AddCommand("lexicon", SetLexicon, "lexicon [{NAME | all}] -- Set the active lexicon, or show available lexicons", Permission.VIP);
-        AddCommand("lurk", Lurk, "lurk -- This is just here so !lurk doesn't make an error message", Permission.Anyone);
+        AddCommand("lurk", Lurk, "lurk -- Say that you are lurking", Permission.Anyone);
         AddCommand("nicefind", NiceFind, "nicefind WORD -- Say that a word was a nice find", Permission.Anyone);
         AddCommand("pattern", Pattern, "pattern REGEX -- Search for words matching a regular expression", Permission.Anyone);
         AddCommand("prefix", Prefix, "prefix WORD -- Show prefixes for a word", Permission.Anyone);
@@ -134,7 +134,7 @@ public partial class CommandParser
 
     private string ListCommands(params string[] _)
     {
-        return "Supported commands: " + string.Join(", ", Commands.Keys);
+        return "Supported commands: " + string.Join(", ", Commands.Keys.Order());
     }
 
 

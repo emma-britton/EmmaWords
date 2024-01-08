@@ -42,23 +42,24 @@ public class EmmaStream
         CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions", Permission.Anyone);
         CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer", Permission.VIP);
         CommandParser.AddCommand("stream", Stream, "stream MODE -- Set the stream mode", Permission.Moderator);
-        CommandParser.AddCommand("start", Start, "start -- Shows the 'stream start' screen", Permission.Moderator);
-        CommandParser.AddCommand("end", End, "end -- Shows the 'stream end' screen", Permission.Moderator);
-        CommandParser.AddCommand("brb", Brb, "brb -- Shows the 'be right back' screen", Permission.Moderator);
+        CommandParser.AddCommand("start", Start, "start -- Show the 'stream start' screen", Permission.Moderator);
+        CommandParser.AddCommand("end", End, "end -- Show the 'stream end' screen", Permission.Moderator);
+        CommandParser.AddCommand("brb", Brb, "brb -- Show the 'be right back' screen", Permission.Moderator);
         CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
         commandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
         commandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
-        commandParser.AddCommand("next", Next, "next -- Starts the next game of Scrabble", Permission.VIP);
-        commandParser.AddCommand("add", Add, "add PLAYER -- Adds a game of Scrabble to the queue", Permission.VIP);
-        commandParser.AddCommand("remove", Remove, "remove PLAYER -- Removes a game of Scrabble from the queue", Permission.VIP);
-        commandParser.AddCommand("skip", Skip, "skip -- Skips the current game of Scrabble", Permission.VIP);
-        commandParser.AddCommand("clear", Clear, "clear -- Clears the queue to play Scrabble", Permission.VIP);
-        commandParser.AddCommand("raid", Raid, "raid -- Displays raid message", Permission.Anyone);
+        commandParser.AddCommand("next", Next, "next -- Start the next game of Scrabble", Permission.VIP);
+        commandParser.AddCommand("add", Add, "add PLAYER -- Add a game of Scrabble to the queue", Permission.VIP);
+        commandParser.AddCommand("remove", Remove, "remove PLAYER -- Remove a game of Scrabble from the queue", Permission.VIP);
+        commandParser.AddCommand("skip", Skip, "skip -- Skip the current game of Scrabble", Permission.VIP);
+        commandParser.AddCommand("clear", Clear, "clear -- Clear the queue to play Scrabble", Permission.VIP);
+        commandParser.AddCommand("raid", Raid, "raid -- Display raid message", Permission.Anyone);
         CommandParser.AddCommand("hug", Hug, "hug -- Send a hug", Permission.Anyone);
         CommandParser.AddCommand("flower", GiveFlower, "flower VIEWER -- Give someone a flower", Permission.Moderator);
         CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden", Permission.Anyone);
+        commandParser.AddCommand("game", Game, "game -- Describe the game Emma is playing", Permission.Anyone);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -677,5 +678,35 @@ public class EmmaStream
 
         string username = args[1];
         return Flower(username, "flower of the day");
+    }
+
+
+    private string? Game(params string[] args)
+    {
+        if (args.Length != 1) return CommandParser.Help("game");
+
+        if (MainForm.UI is ScrabbleUI)
+        {
+            return "Emma is currently playing Scrabble with variant rules";
+        }
+        else if (MainForm.UI is AnagramUI)
+        {
+            return "We are currently playing Emma Words";
+        }
+        else if (MainForm.UI is WordLearnUI)
+        {
+            return "Emma is currently learning words";
+        }
+        else
+        {
+            string gameFile = Path.Combine(Properties.Settings.Default.BaseFolder, "game.txt");
+
+            if (File.Exists(gameFile))
+            {
+                return File.ReadAllText(gameFile);
+            }
+        }
+
+        return null;
     }
 }
