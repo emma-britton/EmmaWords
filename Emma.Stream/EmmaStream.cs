@@ -48,18 +48,19 @@ public class EmmaStream
         CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
-        commandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
-        commandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
-        commandParser.AddCommand("next", Next, "next -- Start the next game of Scrabble", Permission.VIP);
-        commandParser.AddCommand("add", Add, "add PLAYER -- Add a game of Scrabble to the queue", Permission.VIP);
-        commandParser.AddCommand("remove", Remove, "remove PLAYER -- Remove a game of Scrabble from the queue", Permission.VIP);
-        commandParser.AddCommand("skip", Skip, "skip -- Skip the current game of Scrabble", Permission.VIP);
-        commandParser.AddCommand("clear", Clear, "clear -- Clear the queue to play Scrabble", Permission.VIP);
-        commandParser.AddCommand("raid", Raid, "raid -- Display raid message", Permission.Anyone);
+        CommandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
+        CommandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
+        CommandParser.AddCommand("next", Next, "next -- Start the next game of Scrabble", Permission.VIP);
+        CommandParser.AddCommand("add", Add, "add PLAYER -- Add a game of Scrabble to the queue", Permission.VIP);
+        CommandParser.AddCommand("remove", Remove, "remove PLAYER -- Remove a game of Scrabble from the queue", Permission.VIP);
+        CommandParser.AddCommand("skip", Skip, "skip -- Skip the current game of Scrabble", Permission.VIP);
+        CommandParser.AddCommand("clear", Clear, "clear -- Clear the queue to play Scrabble", Permission.VIP);
+        CommandParser.AddCommand("raid", Raid, "raid -- Display raid message", Permission.Anyone);
         CommandParser.AddCommand("hug", Hug, "hug -- Send a hug", Permission.Anyone);
         CommandParser.AddCommand("flower", GiveFlower, "flower VIEWER -- Give someone a flower", Permission.Moderator);
         CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden", Permission.Anyone);
-        commandParser.AddCommand("game", Game, "game -- Describe the game Emma is playing", Permission.Anyone);
+        CommandParser.AddCommand("game", Game, "game -- Describe the game Emma is playing", Permission.Anyone);
+        CommandParser.AddCommand("shelf", Shelf, "shelf -- Explains about emma's stream shelf", Permission.Anyone);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -708,5 +709,13 @@ public class EmmaStream
         }
 
         return null;
+    }
+
+
+    private string? Shelf(params string[] args)
+    {
+        if (args.Length != 1) return CommandParser.Help("shelf");
+
+        return "Feel free to ask about any of the objects on the shelf behind Emma! The penguin's name is Pebbles.";
     }
 }
