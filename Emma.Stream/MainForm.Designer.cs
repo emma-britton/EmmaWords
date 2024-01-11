@@ -39,7 +39,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Emma Stream";
             Shown += MainForm_Shown;
-            KeyDown += WordLearningUI_KeyDown;
+            KeyDown += MainForm_KeyDown;
             MouseDown += MainForm_MouseDown;
             ResumeLayout(false);
         }

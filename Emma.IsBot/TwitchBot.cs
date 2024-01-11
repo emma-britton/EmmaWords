@@ -101,7 +101,7 @@ public class TwitchBot
         Client.OnChatCleared += Client_OnChatCleared;
         Client.Connect();
 
-        PubSub.OnLog += (s, e) => Console.WriteLine(e.Data);
+        //PubSub.OnLog += (s, e) => Console.WriteLine(e.Data);
         PubSub.OnPubSubServiceConnected += Pubsub_OnPubSubServiceConnected;
         PubSub.OnChannelPointsRewardRedeemed += Pubsub_OnChannelPointsRewardRedeemed;
         PubSub.Connect();

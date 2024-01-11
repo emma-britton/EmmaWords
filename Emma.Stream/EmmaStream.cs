@@ -42,8 +42,8 @@ public class EmmaStream
         CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions", Permission.Anyone);
         CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer", Permission.VIP);
         CommandParser.AddCommand("stream", Stream, "stream MODE -- Set the stream mode", Permission.Moderator);
-        CommandParser.AddCommand("start", Start, "start -- Show the 'stream start' screen", Permission.Moderator);
-        CommandParser.AddCommand("end", End, "end -- Show the 'stream end' screen", Permission.Moderator);
+        CommandParser.AddCommand("start", Start, "start -- Show the start screen", Permission.Moderator);
+        CommandParser.AddCommand("end", End, "end -- Show the end screen", Permission.Moderator);
         CommandParser.AddCommand("brb", Brb, "brb -- Show the 'be right back' screen", Permission.Moderator);
         CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
@@ -113,6 +113,18 @@ public class EmmaStream
     }
 
 
+    public void RunCommand(string command)
+    {
+        var message = new StreamMessage("(hotkey)", command, null, true);
+        string? result = CommandParser.InterpretCommand(message, command);
+
+        if (result != null)
+        {
+            TwitchBot?.SendMessage(result);
+        }
+    }
+
+
     private void Bot_Message(object? sender, StreamMessage e)
     {
         if (MainForm.UI != null)
@@ -151,21 +163,9 @@ public class EmmaStream
 
         switch (mode)
         {
-            case "start":
+            case "stop":
                 MainForm.UI = StartScreen;
-                Message = "stream starting soon";
-                StartScreen.StartStream();
-                break;
-
-            case "end":
-                MainForm.UI = StartScreen;
-                Message = "stream ending soon";
-                StartScreen.StopStream();
-                break;
-
-            case "brb":
-                MainForm.UI = StartScreen;
-                Message = "be right back";
+                Message = "one moment";
                 break;
 
             case "scrabble":
@@ -210,9 +210,38 @@ public class EmmaStream
         return null;
     }
 
-    private string? Start(params string[] args) => Stream("start", "start");
-    private string? End(params string[] args) => Stream("end", "end");
-    private string? Brb(params string[] args) => Stream("brb", "brb");
+
+    public void CloseApp()
+    {
+        MainForm.UI = StartScreen;
+    }
+
+
+    private string? Start(params string[] args)
+    {
+        MainForm.UI = StartScreen;
+        Message = "stream starting soon";
+        StartScreen.StartStream();
+        return null;
+    }
+    
+
+    private string? End(params string[] args)
+    {
+        MainForm.UI = StartScreen;
+        Message = "stream ending soon";
+        StartScreen.StopStream();
+        return null;
+    }
+
+
+    private string? Brb(params string[] args)
+    {
+        MainForm.UI = StartScreen;
+        Message = "be right back";
+        StartScreen.StopStream();
+        return null;
+    }
 
 
     private string? Subscribe(params string[] args)

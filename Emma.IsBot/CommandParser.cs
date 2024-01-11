@@ -95,7 +95,7 @@ public partial class CommandParser
         {
             if (!command.HasPermission(message))
             {
-                return $"{command}: permission denied";
+                return $"{command.Name}: permission denied";
             }
 
             return command.Action(args);
@@ -104,7 +104,7 @@ public partial class CommandParser
         {
             if (!aliasCommand.HasPermission(message))
             {
-                return $"{aliasCommand}: permission denied";
+                return $"{aliasCommand.Name}: permission denied";
             }
 
             return aliasCommand.Action(args);

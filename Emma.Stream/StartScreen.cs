@@ -155,7 +155,7 @@ class StartScreen : Gdi
             }
         }
 
-        text = $" { text} ";
+        text = $" {text} ";
 
         string[] extraEmotes =
         {
@@ -267,12 +267,12 @@ class StartScreen : Gdi
     public override void Render()
     {
         Gfx.Clear(Color.FromArgb(255, 40, 40, 40));
-       
+
         if (BackgroundImage != null)
         {
             Gfx.DrawImageUnscaled(BackgroundImage, 0, 0);
         }
-        
+
         foreach (var chat in Chats.ToList())
         {
             FillRoundedRectangle(Color.White, chat.Area, BUBBLE_CORNER);
@@ -284,7 +284,7 @@ class StartScreen : Gdi
                 {
                     Gfx.DrawImage(StreamerImage, titleLeft, chat.Area.Y + BUBBLE_VMARGIN + 3, 24, 24);
                 }
-                
+
                 titleLeft += 24 + BUBBLE_VMARGIN;
             }
 
@@ -307,7 +307,7 @@ class StartScreen : Gdi
                 var profile = ProfileCache[chat.Name];
                 Gfx.DrawImage(profile, chat.Area.X + BUBBLE_HMARGIN, chat.Area.Y + BUBBLE_VMARGIN, PROFILE_SIZE, PROFILE_SIZE);
             }
-            
+
             if (chat.EmoteIds != null)
             {
                 foreach (var emoteId in chat.EmoteIds)
@@ -345,7 +345,7 @@ class StartScreen : Gdi
 
         if (SpinnerImage != null)
         {
-            var spinnerArea = new RectangleF(Area.Width - Area.Width / 12 - Area.Width / 32, 
+            var spinnerArea = new RectangleF(Area.Width - Area.Width / 12 - Area.Width / 32,
                 Area.Height - Area.Width / 12 - Area.Width / 32, (int)(SpinnerImage.Width * 1.41), (int)(SpinnerImage.Height * 1.41));
             Gfx.FillEllipse(Brushes.Black, spinnerArea);
             spinnerArea.Inflate(-5, -5);
@@ -360,6 +360,45 @@ class StartScreen : Gdi
             g.DrawImageUnscaled(SpinnerImage, new Point(offset, offset));
 
             Gfx.DrawImageUnscaled(returnBitmap, (int)(spinnerArea.Left + spinnerArea.Width / 9) - offset + 1, (int)(spinnerArea.Top + spinnerArea.Height / 9) - offset + 1);
+        }
+    }
+
+
+    public override void HandleKey(KeyEventArgs e)
+    {
+        switch (e.KeyCode)
+        {
+            case Keys.F1:
+                Stream.CloseApp();
+                break;
+
+            case Keys.F7:
+                Stream.RunCommand("next");
+                break;
+
+            case Keys.F8:
+                Stream.RunCommand("skip");
+                break;
+
+            case Keys.F9:
+                Stream.RunCommand("raid");
+                break;
+
+            case Keys.F10:
+                Stream.RunCommand("start");
+                break;
+
+            case Keys.F11:
+                Stream.RunCommand("brb");
+                break;
+
+            case Keys.F12:
+                Stream.RunCommand("stop");
+                break;
+
+            case Keys.F13:
+                Stream.RunCommand("game");
+                break;
         }
     }
 }

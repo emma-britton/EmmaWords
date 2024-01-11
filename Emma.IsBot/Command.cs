@@ -23,8 +23,8 @@ class Command
     public bool HasPermission(StreamMessage message)
     {
         return Permission == Permission.Anyone ||
-               (Permission == Permission.VIP && message.IsVIP) ||
-               (Permission == Permission.Moderator && message.IsModerator) ||
+               (Permission == Permission.VIP && (message.IsVIP || message.IsModerator || message.IsBroadcaster)) ||
+               (Permission == Permission.Moderator && (message.IsModerator || message.IsBroadcaster)) ||
                (Permission == Permission.Broadcaster && message.IsBroadcaster);
     }
 }
