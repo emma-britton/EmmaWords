@@ -26,6 +26,7 @@ public class EmmaStream
     
     public TwitchBot? TwitchBot { get; }
     public string Message { get; set; } = "stream starting soon";
+    private bool m_QueueActive = false;
     public Queue<string> PlayerQueue { get; set; } = new();
 
 
@@ -46,7 +47,7 @@ public class EmmaStream
         CommandParser.AddCommand("end", End, "end -- Show the end screen", Permission.Moderator);
         CommandParser.AddCommand("brb", Brb, "brb -- Show the 'be right back' screen", Permission.Moderator);
         CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
-        CommandParser.AddCommand("play", Play, "play PLAY -- Make a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
+        CommandParser.AddCommand("common", Commit, "comkmit PLAY -- Commit a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
         CommandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
         CommandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
@@ -61,13 +62,14 @@ public class EmmaStream
         CommandParser.AddCommand("garden", Garden, "garden -- Show your flower garden", Permission.Anyone);
         CommandParser.AddCommand("game", Game, "game -- Describe the game Emma is playing", Permission.Anyone);
         CommandParser.AddCommand("shelf", Shelf, "shelf -- Explains about emma's stream shelf", Permission.Anyone);
+        CommandParser.AddCommand("queue", Queue, "queue -- Make the game queue active or inactive", Permission.Moderator);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
         CommandParser.AddAlias("msg", "message");
         CommandParser.AddAlias("stop", "end");
         CommandParser.AddAlias("idea", "suggest");
-        CommandParser.AddAlias("commit", "play");
+        CommandParser.AddAlias("play", "join");
 
         if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.TwitchUsername))
         {
@@ -353,9 +355,9 @@ public class EmmaStream
     }
 
 
-    private string? Play(params string[] args)
+    private string? Commit(params string[] args)
     {
-        if (args.Length != 3) return CommandParser.Help("play");
+        if (args.Length != 3) return CommandParser.Help("commit");
 
         if (MainForm.UI is ScrabbleUI sui)
         {
@@ -437,6 +439,11 @@ public class EmmaStream
 
     private string? Join(params string[] args)
     {
+        if (!m_QueueActive)
+        {
+            return "Sorry, Emma is not currently playing with viewers";
+        }
+
         string what = (CommandParser.Username + " - " + string.Join(" ", args.Skip(1))).TrimEnd(' ', '-');
 
         int index = PlayerQueue.ToList().FindIndex(q => q.StartsWith(CommandParser.Username));
@@ -694,7 +701,7 @@ public class EmmaStream
         value.Add(randomFlower);
         int flowerCount = value.Count;
 
-        string message = $"@{username} has received: {randomFlower} gurchyFlower " + 
+        string message = $"@{username} has received: {randomFlower} gurchyRed " + 
             $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
 
         File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{randomFlower}\t{username}\r\n");
@@ -746,5 +753,27 @@ public class EmmaStream
         if (args.Length != 1) return CommandParser.Help("shelf");
 
         return "Feel free to ask about any of the objects on the shelf behind Emma! The penguin's name is Pebbles.";
+    }
+
+
+    public string? Queue(params string[] args)
+    {
+        if (args.Length == 0)
+        {
+            m_QueueActive = !m_QueueActive;
+            return m_QueueActive ? "Queue active" : "Queue inactive";
+        }
+        else if (args[0].Equals("on", StringComparison.OrdinalIgnoreCase))
+        {
+            m_QueueActive = true;
+            return "Queue active";
+        }
+        else if (args[0].Equals("off", StringComparison.OrdinalIgnoreCase))
+        {
+            m_QueueActive = false;
+            return "Queue inactive";
+        }
+
+        return CommandParser.Help("queue");
     }
 }

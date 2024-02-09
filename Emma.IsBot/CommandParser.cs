@@ -95,7 +95,7 @@ public partial class CommandParser
         {
             if (!command.HasPermission(message))
             {
-                return $"{command.Name}: permission denied";
+                return PermissionDenied(command.Name);
             }
 
             return command.Action(args);
@@ -104,13 +104,51 @@ public partial class CommandParser
         {
             if (!aliasCommand.HasPermission(message))
             {
-                return $"{aliasCommand.Name}: permission denied";
+                return PermissionDenied(aliasCommand.Name);
             }
 
             return aliasCommand.Action(args);
         }
 
         return null;
+    }
+
+
+    private string PermissionDenied(string command)
+    {
+        if (Username.Equals("machacatcha", StringComparison.OrdinalIgnoreCase))
+        {
+            string[] firstPart =
+            {
+                "macha",
+                "matcha",
+                "matcher",
+                "masher",
+                "masha",
+                "macher",
+                "match",
+                "matchy"
+            };
+
+            string[] secondPart =
+            {
+                "catcha",
+                "catch",
+                "catcher",
+                "casha",
+                "cacher",
+                "cacha",
+                "cachet",
+                "catchy",
+                "casher",
+                "chacha"
+            };
+
+            var random = new Random();
+            return $"{firstPart[random.Next(firstPart.Length)]} {secondPart[random.Next(secondPart.Length)]}";
+        }
+
+        return $"{command}: permission denied";
     }
 
 
