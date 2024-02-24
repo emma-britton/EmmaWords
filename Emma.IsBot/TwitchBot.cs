@@ -104,7 +104,7 @@ public class TwitchBot
         //PubSub.OnLog += (s, e) => Console.WriteLine(e.Data);
         PubSub.OnPubSubServiceConnected += Pubsub_OnPubSubServiceConnected;
         PubSub.OnChannelPointsRewardRedeemed += Pubsub_OnChannelPointsRewardRedeemed;
-        //PubSub.Connect();
+        PubSub.Connect();
     }
 
 

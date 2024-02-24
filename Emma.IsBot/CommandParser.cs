@@ -127,7 +127,10 @@ public partial class CommandParser
                 "masha",
                 "macher",
                 "match",
-                "matchy"
+                "matchy",
+                "mashed",
+                "mashier",
+                "macho"
             };
 
             string[] secondPart =
@@ -141,7 +144,10 @@ public partial class CommandParser
                 "cachet",
                 "catchy",
                 "casher",
-                "chacha"
+                "chacha",
+                "cashtato",
+                "cashier",
+                "catcho"
             };
 
             var random = new Random();

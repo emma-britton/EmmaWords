@@ -623,15 +623,31 @@ public class EmmaStream
 
         string[] flowers =
         {
+            "agrimony",
+            "american willowherb",
+            "angelica",
+            "annual pearlwort",
             "autumn hawkbit",
+            "barren strawberry",
+            "beaked hawk's-beard",
+            "bell heather",
             "betony",
             "bird's-foot trefoil",
             "biting stonecrop",
             "bittersweet",
             "black bryony",
             "bluebell",
+            "bristly ox-tongue",
+            "broad-leaved willowherb",
+            "brooklime",
             "bugle",
+            "bulbous buttercup",
+            "bush vetch",
             "butterbur",
+            "carline thistle",
+            "cat's ear",
+            "charlock",
+            "cleavers",
             "common spotted orchid",
             "corky-fruited water dropwort",
             "cowslip",
@@ -657,28 +673,60 @@ public class EmmaStream
             "harebell",
             "heath milkwort",
             "herb robert",
+            "ivy-leaved toadflax",
+            "lady's bedstraw",
             "lesser celandine",
             "lesser trefoil",
             "long-headed poppy",
+            "long-stalked crane's-bill",
+            "marsh marigold",
+            "marsh thistle",
+            "meadow buttercup",
             "meadow crane's-bill",
             "meadow vetchling",
+            "musk mallow",
+            "nipplewort",
             "oxeye daisy",
+            "perforate st john's-wort",
+            "pignut",
             "primrose",
             "ragged robin",
+            "ramsons",
             "red campion",
             "red clover",
+            "red dead-nettle",
+            "red valerian",
+            "rock-rose",
+            "rose campion",
             "rosebay willowherb",
+            "rough hawkbit",
             "sainfoin",
+            "salad burnet",
             "scarlet pimpernel",
+            "scentless mayweed",
+            "selfheal",
+            "sheep's sorrel",
             "shining crane's-bill",
+            "small scabious",
+            "smooth hawksbeard",
             "snowdrop",
+            "sorrel",
             "southern marsh orchid",
+            "spear thistle",
+            "spiny rest harrow",
             "sticky mouse-ear",
             "sweet violet",
+            "tansy",
             "thyme-leaved speedwell",
             "tormentil",
             "tufted vetch",
+            "water avens",
+            "water mint",
             "wild strawberry",
+            "wood anemone",
+            "wood avens",
+            "wood sorrel",
+            "woodruff",
             "woolly thistle",
             "yarrow",
             "yellow archangel"
@@ -692,19 +740,37 @@ public class EmmaStream
             "lizard orchid",
             "burnt orchid",
             "bee orchid",
-            "spider orchid"
+            "spider orchid",
+            "cheddar pink"
         };
 
-        var unownedFlowers = flowers.Where(f => !value.Contains(f)).ToArray();
+        string message;
+        string flower;
+        var unownedRares = rareFlowers.Where(f => !value.Contains(f)).ToArray();
 
-        string randomFlower = unownedFlowers[Random.Next(unownedFlowers.Length)];
-        value.Add(randomFlower);
+        if (Random.NextDouble() < 0.05 && unownedRares.Any())
+        {
+            flower = unownedRares[Random.Next(rareFlowers.Length)];
+            message = $"@{username} has received a RARE flower, {flower} gurchyYellow ";
+        }
+        else
+        {
+            var unownedFlowers = flowers.Where(f => !value.Contains(f)).ToArray();
+
+            if (unownedFlowers.Length == 0)
+            {
+                unownedFlowers = flowers;
+            }
+
+            flower = unownedFlowers[Random.Next(unownedFlowers.Length)];
+            message = $"@{username} has received: {flower} gurchyYellow ";
+        }
+
+        value.Add(flower);
         int flowerCount = value.Count;
+        message += $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
+        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{flower}\t{username}\r\n");
 
-        string message = $"@{username} has received: {randomFlower} gurchyRed " + 
-            $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
-
-        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt"), $"{randomFlower}\t{username}\r\n");
         return message;
     }
 

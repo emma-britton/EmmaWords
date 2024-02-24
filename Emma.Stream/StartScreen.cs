@@ -43,6 +43,8 @@ class StartScreen : Gdi
     readonly float PROFILE_SIZE = 48f;
     readonly float EMOTE_SIZE = 48f;
 
+    DateTime StartTime;
+
 
     public StartScreen(EmmaStream stream, Form owner) : base(owner)
     {
@@ -74,6 +76,8 @@ class StartScreen : Gdi
 
     public void StartStream()
     {
+        Stream.Message = "stream starting soon";
+        StartTime = DateTime.Now.AddMinutes(5);
         SoundPlayer.Stop();
         SoundPlayer.SoundLocation = Properties.Settings.Default.StartMusic;
         SoundPlayer.Play();
@@ -337,11 +341,27 @@ class StartScreen : Gdi
             }
         }
 
-        var messageArea = new RectangleF(Area.Width * 0.32f, Area.Height * 3 / 4, Area.Width * 0.36f, Area.Height / 9);
+        var messageArea = new RectangleF(Area.Width * 0.32f, Area.Height * 0.7f, Area.Width * 0.36f, Area.Height / 9);
         FillRoundedRectangle(Color.Black, messageArea, 10);
         messageArea.Inflate(-5, -5);
         FillRoundedRectangle(Color.White, messageArea, 10);
         DrawFitTextOneLine(Stream.Message.Replace("\r\n", " "), "MV Boli", Color.Black, messageArea, CenterCenter, true);
+
+        if (StartTime < DateTime.Now)
+        {
+            Stream.Message = "stream starting now";
+        }
+        else
+        {
+            var timerArea = new RectangleF(Area.Width * 0.45f, Area.Height * 0.85f, Area.Width * 0.1f, Area.Height * 0.1f);
+            FillRoundedRectangle(Color.Black, timerArea, 10);
+            timerArea.Inflate(-5, -5);
+            FillRoundedRectangle(Color.White, timerArea, 10);
+
+            string remainingTime = (StartTime.AddSeconds(1) - DateTime.Now).ToString(@"m\:ss");
+            DrawFitTextOneLine(remainingTime, "MV Boli", Color.Black, timerArea, CenterCenter, true);
+        }
+        
 
         if (SpinnerImage != null)
         {
