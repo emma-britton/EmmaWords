@@ -114,8 +114,9 @@ public partial class CommandParser
     }
 
 
-    private string PermissionDenied(string command)
+    private string? PermissionDenied(string command)
     {
+        /*
         if (Username.Equals("machacatcha", StringComparison.OrdinalIgnoreCase))
         {
             string[] firstPart =
@@ -153,8 +154,10 @@ public partial class CommandParser
             var random = new Random();
             return $"{firstPart[random.Next(firstPart.Length)]} {secondPart[random.Next(secondPart.Length)]}";
         }
+        */
 
-        return $"{command}: permission denied";
+        //return $"{command}: permission denied";
+        return null;
     }
 
 
@@ -164,7 +167,7 @@ public partial class CommandParser
 
         if (message.RewardName != null)
         {
-            string rewardName = message.RewardName.ToLower();
+            string rewardName = message.RewardName.Trim().ToLower();
 
             if (Rewards.TryGetValue(rewardName, out var function))
             {

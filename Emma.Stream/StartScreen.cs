@@ -1,4 +1,5 @@
 ﻿using Emma.Lib;
+using Emma.Stream.Properties;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Media;
@@ -43,7 +44,8 @@ class StartScreen : Gdi
     readonly float PROFILE_SIZE = 48f;
     readonly float EMOTE_SIZE = 48f;
 
-    DateTime StartTime;
+    DateTime StartTime = DateTime.MinValue;
+    private bool Countdown = false;
 
 
     public StartScreen(EmmaStream stream, Form owner) : base(owner)
@@ -60,7 +62,7 @@ class StartScreen : Gdi
 
         if (Directory.Exists(spinnerImageFolder))
         {
-            var spinnerImages = Directory.GetFiles(@"C:\Users\huggl\streaming\flowers").ToList();
+            var spinnerImages = Directory.GetFiles(@"C:\Users\huggl\streaming\program\flowers").ToList();
             string randomImage = spinnerImages[new Random().Next(spinnerImages.Count)];
             SpinnerImage = Image.FromFile(randomImage);
         }
@@ -77,7 +79,9 @@ class StartScreen : Gdi
     public void StartStream()
     {
         Stream.Message = "stream starting soon";
-        StartTime = DateTime.Now.AddMinutes(5);
+        StartTime = DateTime.Now.AddSeconds(5);
+        Countdown = true;
+
         SoundPlayer.Stop();
         SoundPlayer.SoundLocation = Properties.Settings.Default.StartMusic;
         SoundPlayer.Play();
@@ -86,6 +90,8 @@ class StartScreen : Gdi
 
     public void StopStream()
     {
+        Countdown = false;
+
         SoundPlayer.Stop();
     }
 
@@ -101,38 +107,41 @@ class StartScreen : Gdi
 
     public override void Tick()
     {
-        for (int i = Chats.Count - 1; i >= 0; i--)
+        if (Settings.Default.ChatOverlay)
         {
-            var chat = Chats[i];
-
-            if (Math.Abs(chat.Area.X - chat.TargetArea.X) < 0.1f && Math.Abs(chat.Area.Y - chat.TargetArea.Y) < 0.1f
-                && Math.Abs(chat.Area.Width - chat.TargetArea.Width) < 0.1f && Math.Abs(chat.Area.Height - chat.TargetArea.Height) < 0.1f)
+            for (int i = Chats.Count - 1; i >= 0; i--)
             {
-                chat.Area = chat.TargetArea;
-            }
+                var chat = Chats[i];
 
-            if (chat.Area != chat.TargetArea)
-            {
-                chat.Area = new RectangleF
-                (
-                    chat.Area.X + (chat.TargetArea.X - chat.Area.X) * ANIMATION_SPEED,
-                    chat.Area.Y + (chat.TargetArea.Y - chat.Area.Y) * ANIMATION_SPEED,
-                    chat.Area.Width + (chat.TargetArea.Width - chat.Area.Width) * ANIMATION_SPEED,
-                    chat.Area.Height + (chat.TargetArea.Height - chat.Area.Height) * ANIMATION_SPEED
-                );
-            }
+                if (Math.Abs(chat.Area.X - chat.TargetArea.X) < 0.1f && Math.Abs(chat.Area.Y - chat.TargetArea.Y) < 0.1f
+                    && Math.Abs(chat.Area.Width - chat.TargetArea.Width) < 0.1f && Math.Abs(chat.Area.Height - chat.TargetArea.Height) < 0.1f)
+                {
+                    chat.Area = chat.TargetArea;
+                }
 
-            chat.TTL--;
+                if (chat.Area != chat.TargetArea)
+                {
+                    chat.Area = new RectangleF
+                    (
+                        chat.Area.X + (chat.TargetArea.X - chat.Area.X) * ANIMATION_SPEED,
+                        chat.Area.Y + (chat.TargetArea.Y - chat.Area.Y) * ANIMATION_SPEED,
+                        chat.Area.Width + (chat.TargetArea.Width - chat.Area.Width) * ANIMATION_SPEED,
+                        chat.Area.Height + (chat.TargetArea.Height - chat.Area.Height) * ANIMATION_SPEED
+                    );
+                }
 
-            if (chat.TTL <= 0)
-            {
-                chat.TargetArea = new RectangleF(chat.TargetArea.X,
-                    -(200 + chat.Area.Height), chat.TargetArea.Width, chat.TargetArea.Height);
-            }
+                chat.TTL--;
 
-            if (chat.Area.Bottom < 0)
-            {
-                Chats.RemoveAt(i);
+                if (chat.TTL <= 0)
+                {
+                    chat.TargetArea = new RectangleF(chat.TargetArea.X,
+                        -(200 + chat.Area.Height), chat.TargetArea.Width, chat.TargetArea.Height);
+                }
+
+                if (chat.Area.Bottom < 0)
+                {
+                    Chats.RemoveAt(i);
+                }
             }
         }
     }
@@ -140,6 +149,8 @@ class StartScreen : Gdi
 
     public override void HandleMessage(StreamMessage message)
     {
+        if (!Settings.Default.ChatOverlay) return;
+
         string? text = message.Text;
 
         if (text == null && message.RewardName != null)
@@ -277,68 +288,77 @@ class StartScreen : Gdi
             Gfx.DrawImageUnscaled(BackgroundImage, 0, 0);
         }
 
-        foreach (var chat in Chats.ToList())
+        if (Settings.Default.ChatOverlay)
         {
-            FillRoundedRectangle(Color.White, chat.Area, BUBBLE_CORNER);
-            float titleLeft = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
-
-            if (chat.Streamer)
+            foreach (var chat in Chats.ToList())
             {
-                if (StreamerImage != null)
+                FillRoundedRectangle(Color.White, chat.Area, BUBBLE_CORNER);
+                float titleLeft = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
+
+                if (chat.Streamer)
                 {
-                    Gfx.DrawImage(StreamerImage, titleLeft, chat.Area.Y + BUBBLE_VMARGIN + 3, 24, 24);
+                    if (StreamerImage != null)
+                    {
+                        Gfx.DrawImage(StreamerImage, titleLeft, chat.Area.Y + BUBBLE_VMARGIN + 3, 24, 24);
+                    }
+
+                    titleLeft += 24 + BUBBLE_VMARGIN;
                 }
 
-                titleLeft += 24 + BUBBLE_VMARGIN;
-            }
+                Gfx.DrawString(chat.Name, GetFont("ADLaM Display", 16, true), Brushes.Black,
+                    titleLeft, chat.Area.Y + BUBBLE_VMARGIN);
 
-            Gfx.DrawString(chat.Name, GetFont("ADLaM Display", 16, true), Brushes.Black,
-                titleLeft, chat.Area.Y + BUBBLE_VMARGIN);
-
-            if (chat.Text != "")
-            {
-                Gfx.DrawString(chat.Text, GetFont("Arial", 12, true), Brushes.Black, new RectangleF(
-                    chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN,
-                    chat.Area.Y + BUBBLE_VMARGIN + BUBBLE_TITLE,
-                    chat.Area.Width - BUBBLE_HMARGIN * 2,
-                    chat.Area.Height - BUBBLE_VMARGIN * 2 - BUBBLE_TITLE));
-            }
-
-            float emoteX = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
-
-            if (chat.Name != null)
-            {
-                var profile = ProfileCache[chat.Name];
-                Gfx.DrawImage(profile, chat.Area.X + BUBBLE_HMARGIN, chat.Area.Y + BUBBLE_VMARGIN, PROFILE_SIZE, PROFILE_SIZE);
-            }
-
-            if (chat.EmoteIds != null)
-            {
-                foreach (var emoteId in chat.EmoteIds)
+                if (chat.Text != "")
                 {
-                    var image = EmoteCache.Get(emoteId);
+                    Gfx.DrawString(chat.Text, GetFont("Arial", 12, true), Brushes.Black, new RectangleF(
+                        chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN,
+                        chat.Area.Y + BUBBLE_VMARGIN + BUBBLE_TITLE,
+                        chat.Area.Width - BUBBLE_HMARGIN * 2,
+                        chat.Area.Height - BUBBLE_VMARGIN * 2 - BUBBLE_TITLE));
+                }
 
-                    if (image != null)
+                float emoteX = chat.Area.X + PROFILE_SIZE + BUBBLE_VMARGIN + BUBBLE_HMARGIN;
+
+                if (chat.Name != null)
+                {
+                    var profile = ProfileCache[chat.Name];
+                    Gfx.DrawImage(profile, chat.Area.X + BUBBLE_HMARGIN, chat.Area.Y + BUBBLE_VMARGIN, PROFILE_SIZE, PROFILE_SIZE);
+                }
+
+                if (chat.EmoteIds != null)
+                {
+                    foreach (var emoteId in chat.EmoteIds)
                     {
-                        int frames = 1;
+                        var image = EmoteCache.Get(emoteId);
 
-                        try
+                        if (image != null)
                         {
-                            frames = image.GetFrameCount(FrameDimension.Time);
-                        }
-                        catch
-                        { }
+                            int frames = 1;
 
-                        if (frames > 1)
-                        {
-                            image.SelectActiveFrame(FrameDimension.Time, Frame % frames);
-                        }
+                            try
+                            {
+                                frames = image.GetFrameCount(FrameDimension.Time);
+                            }
+                            catch
+                            { }
 
-                        Gfx.DrawImage(image, emoteX, chat.Area.Bottom - BUBBLE_YMARGIN - EMOTE_SIZE, EMOTE_SIZE, EMOTE_SIZE * ((float)image.Height / image.Width));
-                        emoteX += EMOTE_SIZE + BUBBLE_VMARGIN;
+                            if (frames > 1)
+                            {
+                                image.SelectActiveFrame(FrameDimension.Time, Frame % frames);
+                            }
+
+                            Gfx.DrawImage(image, emoteX, chat.Area.Bottom - BUBBLE_YMARGIN - EMOTE_SIZE, EMOTE_SIZE, EMOTE_SIZE * ((float)image.Height / image.Width));
+                            emoteX += EMOTE_SIZE + BUBBLE_VMARGIN;
+                        }
                     }
                 }
             }
+        }
+
+        if (Countdown && StartTime < DateTime.Now)
+        {
+            Stream.Message = "stream starting now";
+            Countdown = false;
         }
 
         var messageArea = new RectangleF(Area.Width * 0.32f, Area.Height * 0.7f, Area.Width * 0.36f, Area.Height / 9);
@@ -347,11 +367,7 @@ class StartScreen : Gdi
         FillRoundedRectangle(Color.White, messageArea, 10);
         DrawFitTextOneLine(Stream.Message.Replace("\r\n", " "), "MV Boli", Color.Black, messageArea, CenterCenter, true);
 
-        if (StartTime < DateTime.Now)
-        {
-            Stream.Message = "stream starting now";
-        }
-        else
+        if (Countdown)
         {
             var timerArea = new RectangleF(Area.Width * 0.45f, Area.Height * 0.85f, Area.Width * 0.1f, Area.Height * 0.1f);
             FillRoundedRectangle(Color.Black, timerArea, 10);
@@ -361,12 +377,11 @@ class StartScreen : Gdi
             string remainingTime = (StartTime.AddSeconds(1) - DateTime.Now).ToString(@"m\:ss");
             DrawFitTextOneLine(remainingTime, "MV Boli", Color.Black, timerArea, CenterCenter, true);
         }
-        
 
         if (SpinnerImage != null)
         {
             var spinnerArea = new RectangleF(Area.Width - Area.Width / 12 - Area.Width / 32,
-                Area.Height - Area.Width / 12 - Area.Width / 32, (int)(SpinnerImage.Width * 1.41), (int)(SpinnerImage.Height * 1.41));
+                Area.Height - Area.Width / 12 - Area.Width / 32, (int)(SpinnerImage.Width * 1.44), (int)(SpinnerImage.Height * 1.44));
             Gfx.FillEllipse(Brushes.Black, spinnerArea);
             spinnerArea.Inflate(-5, -5);
             Gfx.FillEllipse(Brushes.White, spinnerArea);

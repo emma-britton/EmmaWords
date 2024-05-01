@@ -3,8 +3,11 @@ using Emma.IsBot;
 using Emma.Lib;
 using Emma.Scrabble;
 using Emma.WordLearner;
+using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows.Documents;
+using System.Windows.Media.Animation;
 
 namespace Emma.Stream;
 
@@ -15,6 +18,9 @@ public class EmmaStream
     private readonly CommandParser CommandParser;
     private readonly StartScreen StartScreen;
     private readonly Dictionary<string, HashSet<string>> Flowers = new();
+    private readonly Dictionary<string, int> Firsts = new();
+    private readonly Dictionary<string, string> Gifts = new();
+
     private readonly Random Random = new();
 
     private ScrabbleUI? ScrabbleUI;
@@ -29,6 +35,9 @@ public class EmmaStream
     private bool m_QueueActive = false;
     public Queue<string> PlayerQueue { get; set; } = new();
 
+    private bool m_Paused = false;
+    private DateTime m_PauseExpires = DateTime.MinValue;
+
 
     public EmmaStream(MainForm mainForm, WordService wordService, CommandParser commandParser)
     {
@@ -37,6 +46,7 @@ public class EmmaStream
         CommandParser = commandParser;
 
         commandParser.AddReward("flower of the day", Flower);
+        commandParser.AddReward("first", First);
 
         CommandParser.AddCommand("discord", Discord, "discord -- Show the discord link", Permission.Anyone);
         CommandParser.AddCommand("message", ChangeMessage, "message -- Change the message on the title screen", Permission.Moderator);
@@ -63,6 +73,9 @@ public class EmmaStream
         CommandParser.AddCommand("game", Game, "game -- Describe the game Emma is playing", Permission.Anyone);
         CommandParser.AddCommand("shelf", Shelf, "shelf -- Explains about emma's stream shelf", Permission.Anyone);
         CommandParser.AddCommand("queue", Queue, "queue -- Make the game queue active or inactive", Permission.Moderator);
+        CommandParser.AddCommand("cute", Cute, "cute -- Say that Emma is cute", Permission.Anyone);
+        CommandParser.AddCommand("pause", Pause, "pause -- Emma has to stop and chat to you for 3 minutes", Permission.Anyone);
+        CommandParser.AddCommand("resume", Resume, "resume -- Emma can get back to gameplay", Permission.Anyone);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -70,6 +83,7 @@ public class EmmaStream
         CommandParser.AddAlias("stop", "end");
         CommandParser.AddAlias("idea", "suggest");
         CommandParser.AddAlias("play", "join");
+        CommandParser.AddAlias("unpause", "resume");
 
         if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.TwitchUsername))
         {
@@ -106,6 +120,36 @@ public class EmmaStream
                     }
 
                     Flowers[user].Add(flower);
+                }
+            }
+        }
+
+        string giftFile = Path.Combine(Properties.Settings.Default.BaseFolder, "gifts.txt");
+
+        if (File.Exists(giftFile))
+        {
+            foreach (string line in File.ReadAllLines(giftFile))
+            {
+                string[] parts = line.Split('\t');
+
+                if (parts.Length == 2)
+                {
+                    Gifts.Add(parts[0].ToLower(), parts[1]);
+                }
+            }
+        }
+
+        string firstFile = Path.Combine(Properties.Settings.Default.BaseFolder, "firsts.txt");
+
+        if (File.Exists(firstFile))
+        {
+            foreach (string line in File.ReadAllLines(firstFile))
+            {
+                string[] parts = line.Split('\t');
+
+                if (parts.Length == 2)
+                {
+                    Firsts.Add(parts[0].ToLower(), int.Parse(parts[1]));
                 }
             }
         }
@@ -150,9 +194,11 @@ public class EmmaStream
 
     private string? ChangeMessage(params string[] args)
     {
-        if (args.Length != 2) return CommandParser.Help("message");
+        if (args.Length < 2) return CommandParser.Help("message");
 
-        Message = args[1].Trim();
+        Message = string.Join(" ", args.Skip(1)).Trim();
+        StartScreen.StopStream();
+
         return null;
     }
 
@@ -577,13 +623,20 @@ public class EmmaStream
     {
         if (args.Length != 1) return CommandParser.Help("raid");
 
-        return "gurchyBlue gurchyBlue GURCHY RAID gurchyBlue gurchyBlue";
+        return "gurchyPurple gurchyPurple GURCHY RAID gurchyPurple gurchyPurple";
     }
 
 
     private string? Hug(params string[] args)
     {
-        return $"@{CommandParser.Username} gurchyHug";
+        if (args.Length == 0)
+        {
+            return $"@{CommandParser.Username} gurchyHug";
+        }
+        else
+        {
+            return $"@{args[1]} gurchyHug";
+        }
     }
 
 
@@ -604,11 +657,74 @@ public class EmmaStream
         }
         else
         {
-            return $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", Flowers[CommandParser.Username])}";
+            string message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", Flowers[CommandParser.Username])}";
+
+            if (message.Length > 500)
+            {
+                message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden";
+            }
+
+            return message;
         }
     }
 
 
+    private string? First(string username, string rewardName)
+    {
+        username = username.ToLower();
+
+        if (!Firsts.TryGetValue(username, out int count))
+        {
+            count = 0;
+            Firsts.Add(username, count);
+        }
+
+        Firsts[username]++;
+        
+        string message = $"@{username} is first today gurchyPurple ";
+
+        if (Firsts[username] == 1)
+        {
+            message += "this is their first time being first";
+        }
+        else
+        {
+            string ordinal = count switch
+            {
+                1 => "first",
+                2 => "second",
+                3 => "third",
+                4 => "fourth",
+                5 => "fifth",
+                6 => "sixth",
+                7 => "seventh",
+                8 => "eighth",
+                9 => "ninth",
+                10 => "tenth",
+                11 => "eleventh",
+                12 => "twelfth",
+                13 => "thirteenth",
+                14 => "fourteenth",
+                15 => "fifteenth",
+                16 => "sixteenth",
+                17 => "seventeenth",
+                18 => "eighteenth",
+                19 => "nineteenth",
+                20 => "twentieth",
+
+                int i when i % 10 == 1 => $"{count}st",
+                int i when i % 10 == 2 => $"{count}nd",
+                int i when i % 10 == 3 => $"{count}rd",
+                _ => $"{count}th"
+            };
+
+            message += $"this is their {ordinal} time being first";
+        }
+        
+        File.WriteAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "firsts.txt"), string.Join("\r\n", Firsts.Select(kvp => $"{kvp.Key}\t{kvp.Value}")));
+
+        return message;
+    }
 
 
     private string? Flower(string username, string rewardName)
@@ -732,40 +848,20 @@ public class EmmaStream
             "yellow archangel"
         };
 
-        string[] rareFlowers =
-        {
-            "spiked star-of-bethlehem",
-            "lady orchid",
-            "fly orchid",
-            "lizard orchid",
-            "burnt orchid",
-            "bee orchid",
-            "spider orchid",
-            "cheddar pink"
-        };
 
         string message;
         string flower;
-        var unownedRares = rareFlowers.Where(f => !value.Contains(f)).ToArray();
 
-        if (Random.NextDouble() < 0.05 && unownedRares.Any())
+        var unownedFlowers = flowers.Where(f => !value.Contains(f)).ToArray();
+
+        if (unownedFlowers.Length == 0)
         {
-            flower = unownedRares[Random.Next(rareFlowers.Length)];
-            message = $"@{username} has received a RARE flower, {flower} gurchyYellow ";
-        }
-        else
-        {
-            var unownedFlowers = flowers.Where(f => !value.Contains(f)).ToArray();
-
-            if (unownedFlowers.Length == 0)
-            {
-                unownedFlowers = flowers;
-            }
-
-            flower = unownedFlowers[Random.Next(unownedFlowers.Length)];
-            message = $"@{username} has received: {flower} gurchyYellow ";
+            unownedFlowers = flowers;
         }
 
+        flower = unownedFlowers[Random.Next(unownedFlowers.Length)];
+        message = $"@{username} has received: {flower} gurchyPurple ";
+        
         value.Add(flower);
         int flowerCount = value.Count;
         message += $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
@@ -841,5 +937,40 @@ public class EmmaStream
         }
 
         return CommandParser.Help("queue");
+    }
+
+
+    private string? Cute(params string[] args)
+    {
+        return "I am contractually obligated to say that Emma is cute";
+    }
+
+
+    private string? Pause(params string[] args)
+    {
+        if (m_Paused && m_PauseExpires < DateTime.Now)
+        {
+            return "We're already paused!";
+        }
+        else
+        {
+            m_Paused = true;
+            m_PauseExpires = DateTime.Now.AddMinutes(3);
+            return "Time for a 3 minute chat break!";
+        }
+    }
+
+
+    private string? Resume(params string[] args)
+    {
+        if (!m_Paused || m_PauseExpires < DateTime.Now)
+        {
+            return "We're not paused right now";
+        }
+        else
+        {
+            m_Paused = false;
+            return "Back to gameplay!";
+        }
     }
 }

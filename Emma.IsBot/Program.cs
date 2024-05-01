@@ -1,5 +1,6 @@
 ﻿using Emma.Lib;
 using Microsoft.Extensions.Configuration;
+using TwitchLib.Client.Models;
 
 namespace Emma.IsBot;
 
@@ -52,6 +53,7 @@ internal class Program
 
                     if (result != null)
                     {
+                        bot.SendMessage(result);
                         Console.WriteLine(result);
                     }
                 }

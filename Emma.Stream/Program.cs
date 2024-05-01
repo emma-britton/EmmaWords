@@ -20,7 +20,7 @@ static class Program
             form.QueueForm = queueForm;
 
             Console.WriteLine("Ready");
-            ThreadPool.QueueUserWorkItem(_ => MonitorConsole(commandParser));
+            ThreadPool.QueueUserWorkItem(_ => MonitorConsole(commandParser, stream.TwitchBot));
 
             Application.Run(form);
         }
@@ -34,7 +34,7 @@ static class Program
     }
 
 
-    static void MonitorConsole(CommandParser commandParser)
+    static void MonitorConsole(CommandParser commandParser, TwitchBot? bot)
     {
         Thread.CurrentThread.Name = "Console";
 
@@ -54,6 +54,11 @@ static class Program
 
                 if (result != null)
                 {
+                    if (bot != null)
+                    {
+                        bot.SendMessage(result);
+                    }
+
                     Console.WriteLine(result);
                 }
             }
