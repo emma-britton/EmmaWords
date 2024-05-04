@@ -19,6 +19,11 @@ static class Program
             var queueForm = new QueueForm(stream);
             form.QueueForm = queueForm;
 
+            var alertForm = new AlertForm();
+            var alerts = new AlertUI(alertForm);
+            //alertForm.Show();
+            stream.AlertUI = alerts;
+
             Console.WriteLine("Ready");
             ThreadPool.QueueUserWorkItem(_ => MonitorConsole(commandParser, stream.TwitchBot));
 

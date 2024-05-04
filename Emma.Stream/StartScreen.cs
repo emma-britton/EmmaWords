@@ -79,7 +79,7 @@ class StartScreen : Gdi
     public void StartStream()
     {
         Stream.Message = "stream starting soon";
-        StartTime = DateTime.Now.AddSeconds(5);
+        StartTime = DateTime.Now.AddMinutes(5);
         Countdown = true;
 
         SoundPlayer.Stop();

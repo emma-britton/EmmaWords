@@ -14,7 +14,8 @@ public class TwitchBot
 {
     public event EventHandler<StreamMessage>? Message;
     public event EventHandler<EventArgs>? ChatCleared;
-    
+    public event EventHandler<EventArgs>? Alert;
+
     private readonly TwitchClient Client;
     private readonly TwitchAPI API;
     private readonly CommandParser CommandParser;
@@ -83,7 +84,10 @@ public class TwitchBot
 
     private void Pubsub_OnPubSubServiceConnected(object? sender, EventArgs e)
     {
-        //Console.WriteLine("Connected to pubsub");
+        //PubSub.ListenToBitsEventsV2(ChannelId);
+        //PubSub.ListenToFollows(ChannelId);
+        //PubSub.ListenToRaid(ChannelId);
+        //PubSub.ListenToSubscriptions(ChannelId);
         PubSub.ListenToChannelPoints(ChannelId);
         PubSub.SendTopics(ChannelAccessToken);
     }
@@ -95,21 +99,75 @@ public class TwitchBot
 
         Client.Initialize(credentials, ChannelName);
 
-        //Client.OnLog += (s, e) => Console.WriteLine(e.Data);
         Client.OnMessageReceived += Client_OnMessageReceived;
         Client.OnConnected += Client_OnConnected;
         Client.OnChatCleared += Client_OnChatCleared;
+        Client.OnNewSubscriber += Client_OnNewSubscriber;
+        Client.OnCommunitySubscription += Client_OnCommunitySubscription;
+        Client.OnReSubscriber += Client_OnReSubscriber;
+        Client.OnContinuedGiftedSubscription += Client_OnContinuedGiftedSubscription;
+        Client.OnGiftedSubscription += Client_OnGiftedSubscription;
+        Client.OnRaidNotification += Client_OnRaidNotification;
+        Client.OnPrimePaidSubscriber += Client_OnPrimePaidSubscriber;
+        
         Client.Connect();
 
         if (PubSub != null)
         {
-            //PubSub.OnLog += (s, e) => Console.WriteLine(e.Data);
+            PubSub.OnPubSubServiceError += (s, e) => Console.WriteLine(e.Exception.Message);
+
             PubSub.OnPubSubServiceConnected += Pubsub_OnPubSubServiceConnected;
             PubSub.OnChannelPointsRewardRedeemed += Pubsub_OnChannelPointsRewardRedeemed;
+            PubSub.OnBitsReceivedV2 += PubSub_OnBitsReceivedV2;
+            PubSub.OnChannelSubscription += PubSub_OnChannelSubscription;
+            PubSub.OnFollow += PubSub_OnFollow;
+
             PubSub.Connect();
         }
     }
 
+
+    private void PubSub_OnFollow(object? sender, OnFollowArgs e)
+    {
+        Alert?.Invoke(sender, e);
+    }
+
+
+    private void PubSub_OnChannelSubscription(object? sender, OnChannelSubscriptionArgs e)
+    {
+    }
+
+    private void PubSub_OnBitsReceivedV2(object? sender, OnBitsReceivedV2Args e)
+    {
+    }
+
+    private void Client_OnPrimePaidSubscriber(object? sender, OnPrimePaidSubscriberArgs e)
+    {
+    }
+
+    private void Client_OnRaidNotification(object? sender, OnRaidNotificationArgs e)
+    {
+    }
+
+    private void Client_OnGiftedSubscription(object? sender, OnGiftedSubscriptionArgs e)
+    {
+    }
+
+    private void Client_OnContinuedGiftedSubscription(object? sender, OnContinuedGiftedSubscriptionArgs e)
+    {
+    }
+
+    private void Client_OnReSubscriber(object? sender, OnReSubscriberArgs e)
+    {
+    }
+
+    private void Client_OnCommunitySubscription(object? sender, OnCommunitySubscriptionArgs e)
+    {
+    }
+
+    private void Client_OnNewSubscriber(object? sender, OnNewSubscriberArgs e)
+    {
+    }
 
     public string GetProfilePicUrl(string name)
     {

@@ -8,6 +8,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Documents;
 using System.Windows.Media.Animation;
+using TwitchLib.Client.Events;
+using TwitchLib.PubSub.Events;
 
 namespace Emma.Stream;
 
@@ -30,7 +32,9 @@ public class EmmaStream
     private string Player1Name = "Player 1";
     private string Player2Name = "Player 2";
     
-    public TwitchBot? TwitchBot { get; }
+    public TwitchBot? TwitchBot { get; set; }
+    public AlertUI? AlertUI { get; set; }
+
     public string Message { get; set; } = "stream starting soon";
     private bool m_QueueActive = false;
     public Queue<string> PlayerQueue { get; set; } = new();
@@ -76,6 +80,7 @@ public class EmmaStream
         CommandParser.AddCommand("cute", Cute, "cute -- Say that Emma is cute", Permission.Anyone);
         CommandParser.AddCommand("pause", Pause, "pause -- Emma has to stop and chat to you for 3 minutes", Permission.Anyone);
         CommandParser.AddCommand("resume", Resume, "resume -- Emma can get back to gameplay", Permission.Anyone);
+        CommandParser.AddCommand("testalert", TestAlert, "testalert -- Test the alert system", Permission.Broadcaster);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -98,6 +103,7 @@ public class EmmaStream
 
             TwitchBot.ChatCleared += Bot_ChatCleared;
             TwitchBot.Message += Bot_Message;
+            TwitchBot.Alert += TwitchBot_Alert;
             TwitchBot.Run();
         }
 
@@ -156,6 +162,19 @@ public class EmmaStream
 
         StartScreen = new StartScreen(this, MainForm);
         MainForm.UI = StartScreen;
+    }
+
+
+
+    private void TwitchBot_Alert(object? sender, EventArgs e)
+    {
+        if (AlertUI != null)
+        {
+            if (e is OnFollowArgs ofa)
+            {
+                AlertUI.AddAlert(new FollowAlert());
+            }
+        }
     }
 
 
@@ -972,5 +991,12 @@ public class EmmaStream
             m_Paused = false;
             return "Back to gameplay!";
         }
+    }
+
+
+    private string? TestAlert(params string[] args)
+    {
+        AlertUI?.AddAlert(new FollowAlert());
+        return null;
     }
 }
