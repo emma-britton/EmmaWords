@@ -3,12 +3,8 @@ using Emma.IsBot;
 using Emma.Lib;
 using Emma.Scrabble;
 using Emma.WordLearner;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Windows.Documents;
-using System.Windows.Media.Animation;
-using TwitchLib.Client.Events;
 using TwitchLib.PubSub.Events;
 
 namespace Emma.Stream;
@@ -60,6 +56,7 @@ public class EmmaStream
         CommandParser.AddCommand("start", Start, "start -- Show the start screen", Permission.Moderator);
         CommandParser.AddCommand("end", End, "end -- Show the end screen", Permission.Moderator);
         CommandParser.AddCommand("brb", Brb, "brb -- Show the 'be right back' screen", Permission.Moderator);
+        CommandParser.AddCommand("english", English, "english -- Request that people speak English in chat", Permission.VIP);
         CommandParser.AddCommand("suggest", Suggest, "suggest PLAY -- Suggest a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("common", Commit, "comkmit PLAY -- Commit a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
@@ -81,6 +78,8 @@ public class EmmaStream
         CommandParser.AddCommand("pause", Pause, "pause -- Emma has to stop and chat to you for 3 minutes", Permission.Anyone);
         CommandParser.AddCommand("resume", Resume, "resume -- Emma can get back to gameplay", Permission.Anyone);
         CommandParser.AddCommand("testalert", TestAlert, "testalert -- Test the alert system", Permission.Broadcaster);
+        CommandParser.AddCommand("hazelazazelzel", Hazelazazelzel, "hazelazazelzel -- Turn the stream into a Hazel stream", Permission.Anyone);
+        CommandParser.AddCommand("say", Say, "say MESSAGE -- Say a message in chat", Permission.Moderator);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -998,5 +997,47 @@ public class EmmaStream
     {
         AlertUI?.AddAlert(new FollowAlert());
         return null;
+    }
+
+
+    private string English(params string[] args)
+    {
+        string[] localizedMessages =
+        {
+            "Please speak English in chat.",
+            "S'il vous plaît parlez anglais.",
+            "Bitte sprechen Sie Englisch.",
+            "Por favor, hable inglés.",
+            "Por favor, fale inglês no chat.",
+            "Si prega di parlare inglese.",
+            "Va rugam vorbiti in engleza.",
+            "Praat alsjeblieft Engels.",
+            "Vänligen tala engelska.",
+            "Vennligst skriv engelsk I chatten.",
+            "Σας Παρακαλούμε να μιλάτε μόνο Αγγλικά.",
+            "Пожалуйста, говорите по-английски.",
+            "يرجى الكتابه باللغة الانجليزية.",
+            "英語で話してください。",
+            "영어로 말해주세요.",
+            "请在聊天中使用英语。",
+        };
+
+        return string.Join(" ", localizedMessages);
+    }
+
+
+    private string? Hazelazazelzel(params string[] args)
+    {
+        SendHotkey.Send("^+{F12}");
+        return null;
+    }
+
+
+    private string? Say(params string[] args)
+    {
+        if (args.Length < 2) return CommandParser.Help("say");
+
+        string message = string.Join(" ", args.Skip(1));
+        return message;
     }
 }

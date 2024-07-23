@@ -67,12 +67,12 @@ public class WordService
 
         if (File.Exists(definitionFile))
         {
-            //DefinitionSet.ReadFromFile(Definitions, definitionFile);
+            DefinitionSet.ReadFromFile(Definitions, definitionFile);
         }
 
         if (File.Exists(bonusFile))
         {
-            //DefinitionSet.ReadFromFile(Definitions, bonusFile);
+            DefinitionSet.ReadFromFile(Definitions, bonusFile);
         }
     }
 

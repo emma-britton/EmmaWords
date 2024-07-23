@@ -99,6 +99,7 @@ public class TwitchBot
 
         Client.Initialize(credentials, ChannelName);
 
+        Client.OnLog += Client_OnLog;
         Client.OnMessageReceived += Client_OnMessageReceived;
         Client.OnConnected += Client_OnConnected;
         Client.OnChatCleared += Client_OnChatCleared;
@@ -114,8 +115,12 @@ public class TwitchBot
 
         if (PubSub != null)
         {
-            PubSub.OnPubSubServiceError += (s, e) => Console.WriteLine(e.Exception.Message);
+            PubSub.OnPubSubServiceError += (s, e) =>
+            {
+                Console.WriteLine(e.Exception.Message);
+            };
 
+            PubSub.OnLog += PubSub_OnLog;
             PubSub.OnPubSubServiceConnected += Pubsub_OnPubSubServiceConnected;
             PubSub.OnChannelPointsRewardRedeemed += Pubsub_OnChannelPointsRewardRedeemed;
             PubSub.OnBitsReceivedV2 += PubSub_OnBitsReceivedV2;
@@ -124,6 +129,18 @@ public class TwitchBot
 
             PubSub.Connect();
         }
+    }
+
+
+    private void PubSub_OnLog(object? sender, TwitchLib.PubSub.Events.OnLogArgs e)
+    {
+        Console.WriteLine("PubSub: " + e.Data);
+    }
+
+    
+    private void Client_OnLog(object? sender, TwitchLib.Client.Events.OnLogArgs e)
+    {
+        Console.WriteLine("Client: " + e.Data);
     }
 
 
