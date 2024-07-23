@@ -55,6 +55,17 @@ public partial class MainForm : Form
         m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F11);
         m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F12);
         m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F13);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F14);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F15);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F16);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F17);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F18);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F19);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F20);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F21);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F22);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F23);
+        m_Hotkey.RegisterHotKey(Stream.ModifierKeys.Control | Stream.ModifierKeys.Shift, Keys.F24);
     }
 
 

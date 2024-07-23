@@ -327,8 +327,6 @@ public class EmmaStream
             username = CommandParser.Username.ToLower();
         }
 
-        string message = username;
-
         if (username.Length > 20 || username.Any(c => !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == ' ' || c == '_')))
         {
             return "no they're not real";
@@ -336,48 +334,53 @@ public class EmmaStream
 
         if (username == "wanderer15")
         {
-            return "nobody knows who he is, but wanderer15 makes great Scrabble content on YouTube: youtube.com/@wanderer15";
+            return "wanderer15 makes great Scrabble content on YouTube: youtube.com/@wanderer15";
         }
 
-        message += username.ToLower() switch
+        string message = username.ToLower() switch
         {
-            "abbyws" => " streams Scrabble on Wednesdays. They're new to streaming, so why not show some support? ",
+            "ophelia6277" =>
+                "Ophelia is a wonderful person and is best snail. Join her for slow gameplay and chatting, recent games include Snail Simulator, Dorfromantik and Syberia. " +
+                "12:00-16:00 (Central Europe time)",
 
-            "ancientcosmographer" => " streams Infiniwords, an interactive anagramming game, on Friday nights.",
+            "heroinetobirds" =>
+                "Heidi streams Scrabble and party games, including Jackbox packs, Codenames and Gartic Phone. Viewers are welcome to join! " +
+                "Alternate Mondays, Tuesdays and Sundays starting 7PM (Eastern time)",
 
-            "axcertypo" => " streams Scrabble, and is very good at it.",
+            "dragongirl_89" =>
+                "Dragon plays many different games, but especially open world crafting games. Streams whenever she feels like it (Central Europe time)",
 
-            "duustinduude" => " streams Scrabble and other word game content. Currently on an irregular schedule.",
+            "duustinduude" =>
+                "Duustin duude streams word games and sometimes other things. Usually mid evening (Central US time)",
 
-            "gurchy" => " plays Scrabble badly, and some other games too. Streams on Friday, Saturday and Sunday around 21:00GMT.",
+            "rubyinpixels" =>
+                "Ruby enjoys point and click adventure games. Usually late evening (Pacific time)",
 
-            "heroinetobirds" => " streams Scrabble and Codenames, typically on Monday nights and weekends.",
+            "runibl" =>
+                "Runi plays story based games, especially space ones, and sometimes uses dice for random dialogue choices! Tuesday and Friday 16:00 (UK time)",
 
-            "infinitiwirds" => " is a 24/7 stream hosting the interactive anagramming game Infiniwords.",
+            "izzy_the_penguin" =>
+                "Izzy is a penguin! Currently playing Paper Mario: The Thousand Year Door, Friday 18:30 / Saturday 17:00 (UK time)",
 
-            "ophelia6277" => " is a cozy streamer who likes chatting with viewers. They stream a variety of games, focusing on Dorfromantik.",
+            "lana_the_panda" =>
+                "Lana is a panda themed streamer, lots of emotes and sound effects to try out, someimtes discord polls to choose game. " +
+                "Currently playing Star Wars: KOTOR on Tuesday and Thursday and Resident Evil on Sunday, all at 18:00 (UK time)",
+            
+            "alice_sits" =>
+                "Alice is a super cozy streamer who makes smol things and plays casual games. Wednesday and Sunday 10:00-12:00 (Central Europe time)",
 
-            "pancakes_face" => " streams Eco most days, and is always full of positivity!",
+            "thenespa" =>
+                "NESpa plays retro Nintendo games on original hardware, their stream also features chatting and self care. Monday, Tuesday and Friday 5pm - 8pm (Eastern time)",
 
-            "rubyyy_j" => " streams crosswords and puzzle games. ",
-
-            "scrabble" => " is the official channel for the popular word game. Features live coverage of tournaments.",
-
-            "shania" => " is a full-time cozy streamer. Catch them most days around 13:00ET.",
-
-            "wtfj00" => " neds selp. egg.",
-
-            "y2j_twitch" => " take on a variety of challenges - blindfolded Hades, split-controller Celeste, and more!",
-
-            _ => "#",
+            _ => "#"
         };
-
+        
         if (message.EndsWith("#"))
         {
-            return "sorry I don't know who that is";
+            return null;
         }
 
-        message += " Follow them at twitch.tv/" + username;
+        message += " twitch.tv/" + username;
         return message;
     }
 

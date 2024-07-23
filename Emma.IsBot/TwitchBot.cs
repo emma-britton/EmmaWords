@@ -32,10 +32,10 @@ public class TwitchBot
     public TwitchBot(
         CommandParser commandParser,
         string commandPrefix,
-        string clientID, 
-        string botAccessToken, 
-        string botUsername, 
-        string channelAccessToken, 
+        string clientID,
+        string botAccessToken,
+        string botUsername,
+        string channelAccessToken,
         string channelName,
         string channelId)
     {
@@ -110,7 +110,7 @@ public class TwitchBot
         Client.OnGiftedSubscription += Client_OnGiftedSubscription;
         Client.OnRaidNotification += Client_OnRaidNotification;
         Client.OnPrimePaidSubscriber += Client_OnPrimePaidSubscriber;
-        
+
         Client.Connect();
 
         if (PubSub != null)
@@ -137,7 +137,7 @@ public class TwitchBot
         Console.WriteLine("PubSub: " + e.Data);
     }
 
-    
+
     private void Client_OnLog(object? sender, TwitchLib.Client.Events.OnLogArgs e)
     {
         Console.WriteLine("Client: " + e.Data);
@@ -216,7 +216,7 @@ public class TwitchBot
             return;
         }
 
-        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes, 
+        var message = new StreamMessage(e.ChatMessage.Username, e.ChatMessage.Message, e.ChatMessage.EmoteSet.Emotes,
             e.ChatMessage.IsBroadcaster, e.ChatMessage.IsModerator, e.ChatMessage.IsVip);
 
         Message?.Invoke(this, message);

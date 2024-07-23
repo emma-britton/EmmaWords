@@ -434,6 +434,15 @@ class StartScreen : Gdi
             case Keys.F13:
                 Stream.RunCommand("game");
                 break;
+
+            case Keys.F14:
+                Stream.RunCommand("discord");
+                break;
+
+            case Keys.F15:
+                Stream.RunCommand("shoutout ophelia6277");
+                break;
+
         }
     }
 }
