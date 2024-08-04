@@ -15,6 +15,7 @@ public class EmmaStream
     private readonly WordService WordService;
     private readonly CommandParser CommandParser;
     private readonly StartScreen StartScreen;
+    private readonly List<string> Quotes = new();
     private readonly Dictionary<string, HashSet<string>> Flowers = new();
     private readonly Dictionary<string, int> Firsts = new();
     private readonly Dictionary<string, string> Gifts = new();
@@ -80,6 +81,10 @@ public class EmmaStream
         CommandParser.AddCommand("testalert", TestAlert, "testalert -- Test the alert system", Permission.Broadcaster);
         CommandParser.AddCommand("hazelazazelzel", Hazelazazelzel, "hazelazazelzel -- Turn the stream into a Hazel stream", Permission.Anyone);
         CommandParser.AddCommand("say", Say, "say MESSAGE -- Say a message in chat", Permission.Moderator);
+        CommandParser.AddCommand("quote", Quote, "quote NUMBER -- Show a quote from the quote list", Permission.Anyone);
+        CommandParser.AddCommand("addquote", AddQuote, "addquote QUOTE -- Add a quote to the quote list", Permission.VIP);
+        CommandParser.AddCommand("removequote", RemoveQuote, "removequote NUMBER -- Remove a quote from the quote list", Permission.VIP);
+        CommandParser.AddCommand("editquote", EditQuote, "editquote NUMBER QUOTE -- Edit a quote in the quote list", Permission.VIP);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -104,6 +109,13 @@ public class EmmaStream
             TwitchBot.Message += Bot_Message;
             TwitchBot.Alert += TwitchBot_Alert;
             TwitchBot.Run();
+        }
+
+        string quoteFile = Path.Combine(Properties.Settings.Default.BaseFolder, "quotes.txt");
+
+        if (File.Exists(quoteFile))
+        {
+            Quotes.AddRange(File.ReadAllLines(quoteFile).Where(string.IsNullOrWhiteSpace).Select(q => q.Trim()));
         }
 
         string flowerFile = Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt");
@@ -650,7 +662,7 @@ public class EmmaStream
 
     private string? Hug(params string[] args)
     {
-        if (args.Length == 0)
+        if (args.Length <= 1)
         {
             return $"@{CommandParser.Username} gurchyHug";
         }
@@ -1042,5 +1054,81 @@ public class EmmaStream
 
         string message = string.Join(" ", args.Skip(1));
         return message;
+    }
+
+
+    private string? Quote(params string[] args)
+    {
+        if (args.Length == 1)
+        {
+            return Quotes[new Random().Next(Quotes.Count)];
+        }
+
+        if (args[1] == "add")
+        {
+            return AddQuote(["addquote", .. args.Skip(2)]);
+        }
+
+        if (args[1] == "remove")
+        {
+            return AddQuote(["addquote", .. args.Skip(2)]);
+        }
+
+        if (args[1] == "edit")
+        {
+            return EditQuote(["editquote", .. args.Skip(2)]);
+        }
+
+        if (!int.TryParse(args[1], out int index) || index < 1 || index > Quotes.Count)
+        {
+            return $"No such quote, try a number between 1 and {Quotes.Count}";
+        }
+
+        return Quotes[index - 1];
+    }
+
+
+    private string? AddQuote(params string[] args)
+    {
+        if (args.Length < 2) return CommandParser.Help("addquote");
+
+        string quote = string.Join(" ", args.Skip(1));
+        Quotes.Add(quote);
+        File.AppendAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "quotes.txt"), quote + "\r\n");
+
+        return $"Quote #{Quotes.Count} added";
+    }
+
+
+    private string? RemoveQuote(params string[] args)
+    {
+        if (args.Length != 2) return CommandParser.Help("removequote");
+
+        if (!int.TryParse(args[1], out int index) || index < 1 || index > Quotes.Count)
+        {
+            return $"No such quote, try a number between 1 and {Quotes.Count}";
+        }
+
+        Quotes.RemoveAt(index - 1);
+        File.WriteAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "quotes.txt"), string.Join("\r\n", Quotes));
+
+        return $"Quote #{index} removed";
+    }
+
+
+    private string? EditQuote(params string[] args)
+    {
+        if (args.Length < 3) return CommandParser.Help("editquote");
+
+        if (!int.TryParse(args[1], out int index) || index < 1 || index > Quotes.Count)
+        {
+            return $"No such quote, try a number between 1 and {Quotes.Count}";
+        }
+
+        string quote = string.Join(" ", args.Skip(2));
+        Quotes[index - 1] = quote;
+        File.WriteAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "quotes.txt"), string.Join("\r\n", Quotes));
+
+        return $"Quote #{index} updated";
     }
 }

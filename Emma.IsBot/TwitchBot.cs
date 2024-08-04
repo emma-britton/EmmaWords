@@ -134,13 +134,13 @@ public class TwitchBot
 
     private void PubSub_OnLog(object? sender, TwitchLib.PubSub.Events.OnLogArgs e)
     {
-        Console.WriteLine("PubSub: " + e.Data);
+        //Console.WriteLine("PubSub: " + e.Data);
     }
 
 
     private void Client_OnLog(object? sender, TwitchLib.Client.Events.OnLogArgs e)
     {
-        Console.WriteLine("Client: " + e.Data);
+        //Console.WriteLine("Client: " + e.Data);
     }
 
 

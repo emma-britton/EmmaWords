@@ -443,6 +443,41 @@ class StartScreen : Gdi
                 Stream.RunCommand("shoutout ophelia6277");
                 break;
 
+            case Keys.F16:
+                Stream.RunCommand("shoutout heroinetobirds");
+                break;
+
+            case Keys.F17:
+                Stream.RunCommand("shoutout dragongirl_89");
+                break;
+
+            case Keys.F18:
+                Stream.RunCommand("shoutout duustinduude");
+                break;
+
+            case Keys.F19:
+                Stream.RunCommand("shoutout rubyinpixels");
+                break;
+
+            case Keys.F20:
+                Stream.RunCommand("shoutout runibl");
+                break;
+
+            case Keys.F21:
+                Stream.RunCommand("shoutout izzy_the_penguin");
+                break;
+
+            case Keys.F22:
+                Stream.RunCommand("shoutout lana_the_panda");
+                break;
+
+            case Keys.F23:
+                Stream.RunCommand("shoutout alice_sits");
+                break;
+
+            case Keys.F24:
+                Stream.RunCommand("shoutout thenespa");
+                break;
         }
     }
 }
