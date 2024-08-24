@@ -444,7 +444,7 @@ class StartScreen : Gdi
                 break;
 
             case Keys.F16:
-                Stream.RunCommand("shoutout heroinetobirds");
+                Stream.RunCommand("shoutout sarahwithstars");
                 break;
 
             case Keys.F17:

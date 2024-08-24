@@ -115,7 +115,7 @@ public class EmmaStream
 
         if (File.Exists(quoteFile))
         {
-            Quotes.AddRange(File.ReadAllLines(quoteFile).Where(string.IsNullOrWhiteSpace).Select(q => q.Trim()));
+            Quotes.AddRange(File.ReadAllLines(quoteFile).Where(line => !string.IsNullOrWhiteSpace(line)).Select(q => q.Trim()));
         }
 
         string flowerFile = Path.Combine(Properties.Settings.Default.BaseFolder, "flowers.txt");
@@ -355,9 +355,9 @@ public class EmmaStream
                 "Ophelia is a wonderful person and is best snail. Join her for slow gameplay and chatting, recent games include Snail Simulator, Dorfromantik and Syberia. " +
                 "12:00-16:00 (Central Europe time)",
 
-            "heroinetobirds" =>
-                "Heidi streams Scrabble and party games, including Jackbox packs, Codenames and Gartic Phone. Viewers are welcome to join! " +
-                "Alternate Mondays, Tuesdays and Sundays starting 7PM (Eastern time)",
+            "sarahwithstars" =>
+                "Sarah is calm, kind and caring, she has recently been playing Cult of the Lamb and Elden Ring. Schedule varies, typically a few streams a week " +
+                    "starting around 8-10am (UK time)",
 
             "dragongirl_89" =>
                 "Dragon plays many different games, but especially open world crafting games. Streams whenever she feels like it (Central Europe time)",
@@ -372,12 +372,12 @@ public class EmmaStream
                 "Runi plays story based games, especially space ones, and sometimes uses dice for random dialogue choices! Tuesday and Friday 16:00 (UK time)",
 
             "izzy_the_penguin" =>
-                "Izzy is a penguin! Currently playing Paper Mario: The Thousand Year Door, Friday 18:30 / Saturday 17:00 (UK time)",
+                "Izzy is a penguin! Currently streaming game development, Friday 18:30 / Saturday 17:00 (UK time)",
 
             "lana_the_panda" =>
                 "Lana is a panda themed streamer, lots of emotes and sound effects to try out, someimtes discord polls to choose game. " +
-                "Currently playing Star Wars: KOTOR on Tuesday and Thursday and Resident Evil on Sunday, all at 18:00 (UK time)",
-            
+                "Currently playing Star Wars: KOTOR on Tuesday and Thursday and Red Dead Redemption on Sunday, all at 18:00 (UK time)",
+
             "alice_sits" =>
                 "Alice is a super cozy streamer who makes smol things and plays casual games. Wednesday and Sunday 10:00-12:00 (Central Europe time)",
 
@@ -1059,7 +1059,7 @@ public class EmmaStream
 
     private string? Quote(params string[] args)
     {
-        if (args.Length == 1)
+        if (args.Length == 1 && Quotes.Count > 0)
         {
             return Quotes[new Random().Next(Quotes.Count)];
         }
@@ -1069,19 +1069,24 @@ public class EmmaStream
             return AddQuote(["addquote", .. args.Skip(2)]);
         }
 
-        if (args[1] == "remove")
+        if (args[1] == "remove" && Quotes.Count > 0)
         {
-            return AddQuote(["addquote", .. args.Skip(2)]);
+            return RemoveQuote(["addquote", .. args.Skip(2)]);
         }
 
-        if (args[1] == "edit")
+        if (args[1] == "edit" && Quotes.Count > 0)
         {
             return EditQuote(["editquote", .. args.Skip(2)]);
         }
 
-        if (!int.TryParse(args[1], out int index) || index < 1 || index > Quotes.Count)
+        if ((!int.TryParse(args[1], out int index) || index < 1 || index > Quotes.Count) && Quotes.Count > 0)
         {
             return $"No such quote, try a number between 1 and {Quotes.Count}";
+        }
+
+        if (Quotes.Count == 0)
+        {
+            return null;
         }
 
         return Quotes[index - 1];
