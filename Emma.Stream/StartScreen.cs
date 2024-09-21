@@ -51,23 +51,20 @@ class StartScreen : Gdi
     public StartScreen(EmmaStream stream, Form owner) : base(owner)
     {
         Stream = stream;
-        string baseFolder = Properties.Settings.Default.BaseFolder;
 
-        if (Directory.Exists(baseFolder))
+        if (File.Exists(Settings.Default.Background))
         {
-            BackgroundImage = Image.FromFile(Path.Combine(baseFolder, "Background.png"));
+            BackgroundImage = Image.FromFile(Settings.Default.Background);
         }
 
-        string spinnerImageFolder = Path.Combine(baseFolder, "flowers");
-
-        if (Directory.Exists(spinnerImageFolder))
+        if (Directory.Exists(Settings.Default.FlowersFolder))
         {
-            var spinnerImages = Directory.GetFiles(@"C:\Users\huggl\streaming\program\flowers").ToList();
+            var spinnerImages = Directory.GetFiles(Settings.Default.FlowersFolder).ToList();
             string randomImage = spinnerImages[new Random().Next(spinnerImages.Count)];
             SpinnerImage = Image.FromFile(randomImage);
         }
 
-        string emoteCacheFolder = Properties.Settings.Default.EmoteCache;
+        string emoteCacheFolder = Settings.Default.EmoteCache;
 
         if (Directory.Exists(emoteCacheFolder))
         {
