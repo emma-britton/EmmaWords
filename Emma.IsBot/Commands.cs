@@ -44,12 +44,6 @@ partial class CommandParser
     }
 
 
-    private string? Egg(params string[] args)
-    {
-        return "egg";
-    }
-
-
     private string? Lurk(params string[] args)
     {
         if (Username == null)

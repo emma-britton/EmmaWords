@@ -2,26 +2,18 @@
 
 namespace Emma.Scrabble;
 
-public class ScrabbleUI : Gdi
+public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
 {
-    private readonly ScrabbleGame Game;
-    private readonly RuleSet RuleSet;
-    private readonly Lexicon Lexicon;
+    private readonly ScrabbleGame Game = game;
+    private readonly RuleSet RuleSet = game.RuleSet;
+    private readonly Lexicon Lexicon = game.Lexicon;
 
     private RectangleF[,] SpaceAreas = new RectangleF[0, 0];
     private (int X, int Y) Cursor = (-1, -1);
     private bool Vertical;
-    private readonly Dictionary<string, RectangleF> ButtonActions = new();
+    private readonly Dictionary<string, RectangleF> ButtonActions = [];
     private readonly Image EmmaImage = new Bitmap(@"C:\Users\huggl\streaming\points\Wave_112.png");
     private readonly Random Random = new();
-
-
-    public ScrabbleUI(ScrabbleGame game, Form owner) : base(owner)
-    {
-        Game = game;
-        RuleSet = game.RuleSet;
-        Lexicon = game.Lexicon;
-    }
 
 
     public override void Render()

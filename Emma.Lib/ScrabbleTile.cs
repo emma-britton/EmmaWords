@@ -1,24 +1,15 @@
 ﻿
 namespace Emma.Lib;
 
-public class ScrabbleTile
+public class ScrabbleTile(string letter, string display, string designation, int points)
 {
-    public string Letter { get; set; }
-    public string Display { get; set; }
-    public string Designation { get; set; }
-    public bool Uncommitted { get; set; }
+    public string Letter { get; set; } = letter;
+    public string Display { get; set; } = display;
+    public string Designation { get; set; } = designation;
+    public bool Uncommitted { get; set; } = false;
     public int Player { get; set; }
-    public int Points { get; set; }
+    public int Points { get; set; } = points;
 
-
-    public ScrabbleTile(string letter, string display, string designation, int points)
-    {
-        Letter = letter;
-        Display = display;
-        Designation = designation;
-        Uncommitted = false;
-        Points = points;
-    }
 
     public override string ToString()
     {

@@ -3,15 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace Emma.Anagramming;
 
-public class AnagramUI : Gdi
+public class AnagramUI(AnagramGame game, Form owner) : Gdi(owner)
 {
-    public AnagramGame Game { get; }
-
-
-    public AnagramUI(AnagramGame game, Form owner) : base(owner)
-    {
-        Game = game;
-    }
+    public AnagramGame Game { get; } = game;
 
 
     public override void HandleMessage(StreamMessage message)

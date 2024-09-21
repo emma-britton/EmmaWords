@@ -2,14 +2,9 @@
 
 namespace Emma.Stream;
 
-public class QueueUI : Gdi
+public class QueueUI(EmmaStream stream, Form owner) : Gdi(owner)
 {
-    private EmmaStream m_stream;
-
-    public QueueUI(EmmaStream stream, Form owner) : base(owner)
-    {
-        m_stream = stream;
-    }
+    private readonly EmmaStream m_stream = stream;
 
 
     public override void Render()

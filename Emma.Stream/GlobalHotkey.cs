@@ -16,7 +16,7 @@ public class GlobalHotkey : IDisposable
     /// </summary>
     private class Window : NativeWindow, IDisposable
     {
-        private static int WM_HOTKEY = 0x0312;
+        private static readonly int WM_HOTKEY = 0x0312;
 
         public Window()
         {
@@ -52,7 +52,7 @@ public class GlobalHotkey : IDisposable
         }
     }
 
-    private Window _window = new Window();
+    private readonly Window _window = new();
     private int _currentId;
 
     public GlobalHotkey()

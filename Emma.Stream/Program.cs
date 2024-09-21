@@ -59,11 +59,7 @@ static class Program
 
                 if (result != null)
                 {
-                    if (bot != null)
-                    {
-                        bot.SendMessage(result);
-                    }
-
+                    bot?.SendMessage(result);
                     Console.WriteLine(result);
                 }
             }

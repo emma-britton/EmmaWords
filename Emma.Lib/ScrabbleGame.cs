@@ -4,7 +4,11 @@ namespace Emma.Lib;
 /// <summary>
 /// Represents a game of Scrabble.
 /// </summary>
-public class ScrabbleGame
+/// <param name="ruleSet">Rule set to use for this game.</param>
+/// <param name="lexicon">Lexicon to use for this game.</param>
+/// <param name="player1Name">First player's name.</param>
+/// <param name="player2Name">Second player's name.</param>
+public class ScrabbleGame(RuleSet ruleSet, Lexicon lexicon, string player1Name, string player2Name)
 {
     private static readonly Random m_Random = new();
 
@@ -17,12 +21,12 @@ public class ScrabbleGame
     /// <summary>
     /// First player's name.
     /// </summary>
-    public string Player1Name { get; init; }
+    public string Player1Name { get; init; } = player1Name;
 
     /// <summary>
     /// Second player's name.
     /// </summary>
-    public string Player2Name { get; set; }
+    public string Player2Name { get; set; } = player2Name;
 
     /// <summary>
     /// First player's score.
@@ -96,7 +100,7 @@ public class ScrabbleGame
     /// <summary>
     /// The lexicon with which this game was played.
     /// </summary>
-    public Lexicon Lexicon { get; }
+    public Lexicon Lexicon { get; } = lexicon;
 
     /// <summary>
     /// The number of the player with the current turn.
@@ -106,27 +110,27 @@ public class ScrabbleGame
     /// <summary>
     /// The rule set under which this game was played.
     /// </summary>
-    public RuleSet RuleSet { get; }
+    public RuleSet RuleSet { get; } = ruleSet;
 
     /// <summary>
     /// The plays made in this game.
     /// </summary>
-    public List<ScrabblePlay> Plays { get; } = new();
+    public List<ScrabblePlay> Plays { get; } = [];
 
     /// <summary>
     /// The contents of the tile bag.
     /// </summary>
-    public List<ScrabbleTile> Bag { get; set; } = new();
+    public List<ScrabbleTile> Bag { get; set; } = [];
 
     /// <summary>
     /// The tiles currently on Player 1's rack.
     /// </summary>
-    public List<ScrabbleTile> Player1Rack { get; set; } = new();
+    public List<ScrabbleTile> Player1Rack { get; set; } = [];
 
     /// <summary>
     /// The tiles currently on Player 2's rack.
     /// </summary>
-    public List<ScrabbleTile> Player2Rack { get; set; } = new();
+    public List<ScrabbleTile> Player2Rack { get; set; } = [];
 
     /// <summary>
     /// The tiles on the current player's rack.
@@ -136,24 +140,7 @@ public class ScrabbleGame
     /// <summary>
     /// The current board state.
     /// </summary>
-    public ScrabbleTile?[,] Board { get; set; }
-
-
-    /// <summary>
-    /// Creates a representation of a Scrabble game between two players.
-    /// </summary>
-    /// <param name="ruleSet">Rule set to use for this game.</param>
-    /// <param name="lexicon">Lexicon to use for this game.</param>
-    /// <param name="player1Name">First player's name.</param>
-    /// <param name="player2Name">Second player's name.</param>
-    public ScrabbleGame(RuleSet ruleSet, Lexicon lexicon, string player1Name, string player2Name)
-    {
-        RuleSet = ruleSet;
-        Lexicon = lexicon;
-        Player1Name = player1Name;
-        Player2Name = player2Name;
-        Board = new ScrabbleTile?[ruleSet.BoardSize, ruleSet.BoardSize];
-    }
+    public ScrabbleTile?[,] Board { get; set; } = new ScrabbleTile?[ruleSet.BoardSize, ruleSet.BoardSize];
 
 
     public (int x, int y) PlayStartPosition { get; set; }

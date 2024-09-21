@@ -4,7 +4,7 @@ namespace Emma.Stream;
 
 public class AlertUI : Gdi
 {
-    private Queue<Alert> Queue = new();
+    private readonly Queue<Alert> Queue = new();
     private Alert? CurrentAlert;
     private DateTime NextAlertTime;
 
@@ -46,10 +46,7 @@ public class AlertUI : Gdi
 
     public override void Render()
     {
-        if (CurrentAlert != null)
-        {
-            CurrentAlert.Render(this);
-        }
+        CurrentAlert?.Render(this);
     }
 }
 

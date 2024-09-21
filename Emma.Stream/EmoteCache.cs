@@ -6,7 +6,7 @@ namespace Emma.Stream;
 
 public class EmoteCache
 {
-    private readonly Dictionary<string, Image> Cache = new();
+    private readonly Dictionary<string, Image> Cache = [];
 
     public Image LoadTwitch(string key, int size)
     {
@@ -15,7 +15,7 @@ public class EmoteCache
             try
             {
                 using var client = new WebClient();
-                string tempfile = @"C:\Users\huggl\emotes\" + key + ".gif";
+                string tempfile = @"C:\Users\emmab\OneDrive\Emma\streaming\emotecache\" + key + ".gif";
 
                 if (!File.Exists(tempfile))
                 {
@@ -47,9 +47,9 @@ public class EmoteCache
   
     public Image? LoadCustom(string key)
     {
-        if (!Cache.ContainsKey(key))
+        if (!Cache.TryGetValue(key, out Image? value))
         {
-            string emoteFile = @"C:\Users\huggl\emotes\7tv\" + key + ".gif";
+            string emoteFile = @"C:\Users\emmab\OneDrive\Emma\streaming\emotecache\7tv\" + key + ".gif";
 
             if (File.Exists(emoteFile))
             {
@@ -60,7 +60,7 @@ public class EmoteCache
             return null;
         }
 
-        return Cache[key];
+        return value;
     }
 
 

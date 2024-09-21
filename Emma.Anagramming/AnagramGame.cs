@@ -5,12 +5,13 @@ namespace Emma.Anagramming;
 /// <summary>
 /// An interactive anagramming game.
 /// </summary>
-public class AnagramGame
+/// <param name="lexicon">The lexicon to use.</param>
+public class AnagramGame(Lexicon lexicon)
 {
     private readonly Random Random = new();
     private bool Started;
 
-    private Lexicon m_Lexicon;
+    private Lexicon m_Lexicon = lexicon;
     private int m_MinWordLength = 3;
     private int m_MaxWordLength = 8;
     private int m_GameColumns = 4;
@@ -92,16 +93,6 @@ public class AnagramGame
 
 
     /// <summary>
-    /// Creates a new anagramming game.
-    /// </summary>
-    /// <param name="lexicon">The lexicon to use.</param>
-    public AnagramGame(Lexicon lexicon)
-    {
-        m_Lexicon = lexicon;
-    }
-
-
-    /// <summary>
     /// The questions remaining to be asked.
     /// </summary>
     public Queue<AnagramQuestion> Questions { get; } = new();
@@ -109,22 +100,22 @@ public class AnagramGame
     /// <summary>
     /// The currently active questions.
     /// </summary>
-    public List<AnagramQuestion?> ActiveQuestions { get; } = new();
+    public List<AnagramQuestion?> ActiveQuestions { get; } = [];
 
     /// <summary>
     /// The questions that have been completed.
     /// </summary>
-    public List<AnagramQuestion> CompletedQuestions { get; } = new();
+    public List<AnagramQuestion> CompletedQuestions { get; } = [];
 
     /// <summary>
     /// Names of all participating players and their scores.
     /// </summary>
-    public Dictionary<string, int> PlayerScores { get; } = new();
+    public Dictionary<string, int> PlayerScores { get; } = [];
 
     /// <summary>
     /// The guesses that have been submitted.
     /// </summary>
-    public List<AnagramGuess> Guesses { get; } = new();
+    public List<AnagramGuess> Guesses { get; } = [];
 
 
     /// <summary>

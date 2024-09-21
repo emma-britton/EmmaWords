@@ -3,7 +3,7 @@ namespace Emma.Lib;
 
 public class DefinitionSet
 {
-    private readonly Dictionary<string, List<Definition>> Definitions = new();
+    private readonly Dictionary<string, List<Definition>> Definitions = [];
 
 
     public DefinitionSet()
@@ -15,7 +15,7 @@ public class DefinitionSet
     {
         if (!Definitions.TryGetValue(definition.Word, out var list))
         {
-            Definitions[definition.Word] = list = new List<Definition>();
+            Definitions[definition.Word] = list = [];
         }
 
         list.Add(definition);
@@ -151,7 +151,7 @@ public class DefinitionSet
             return possibleDefs;
         }
 
-        return Enumerable.Empty<Definition>();
+        return [];
     }
 
 

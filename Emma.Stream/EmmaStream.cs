@@ -15,10 +15,10 @@ public class EmmaStream
     private readonly WordService WordService;
     private readonly CommandParser CommandParser;
     private readonly StartScreen StartScreen;
-    private readonly List<string> Quotes = new();
-    private readonly Dictionary<string, HashSet<string>> Flowers = new();
-    private readonly Dictionary<string, int> Firsts = new();
-    private readonly Dictionary<string, string> Gifts = new();
+    private readonly List<string> Quotes = [];
+    private readonly Dictionary<string, HashSet<string>> Flowers = [];
+    private readonly Dictionary<string, int> Firsts = [];
+    private readonly Dictionary<string, string> Gifts = [];
 
     private readonly Random Random = new();
 
@@ -26,8 +26,8 @@ public class EmmaStream
     private AnagramUI? AnagramUI;
     private WordLearnUI? LearnUI;
 
-    private string Player1Name = "Player 1";
-    private string Player2Name = "Player 2";
+    private readonly string Player1Name = "Player 1";
+    private readonly string Player2Name = "Player 2";
     
     public TwitchBot? TwitchBot { get; set; }
     public AlertUI? AlertUI { get; set; }
@@ -131,12 +131,13 @@ public class EmmaStream
                     string flower = parts[0];
                     string user = parts[1];
 
-                    if (!Flowers.ContainsKey(user))
+                    if (!Flowers.TryGetValue(user, out HashSet<string>? value))
                     {
-                        Flowers.Add(user, new HashSet<string>());
+                        value = [];
+                        Flowers.Add(user, value);
                     }
 
-                    Flowers[user].Add(flower);
+                    value.Add(flower);
                 }
             }
         }
@@ -181,7 +182,7 @@ public class EmmaStream
     {
         if (AlertUI != null)
         {
-            if (e is OnFollowArgs ofa)
+            if (e is OnFollowArgs)
             {
                 AlertUI.AddAlert(new FollowAlert());
             }
@@ -203,10 +204,7 @@ public class EmmaStream
 
     private void Bot_Message(object? sender, StreamMessage e)
     {
-        if (MainForm.UI != null)
-        {
-            MainForm.UI.HandleMessage(e);
-        }
+        MainForm.UI?.HandleMessage(e);
     }
 
 
@@ -247,10 +245,7 @@ public class EmmaStream
                 break;
 
             case "scrabble":
-                if (ScrabbleUI != null)
-                {
-                    ScrabbleUI.Stop();
-                }
+                ScrabbleUI?.Stop();
 
                 var scrabbleGame = new ScrabbleGame(WordService.ActiveRuleSet, WordService.ActiveLexicon, Player1Name, Player2Name);
                 scrabbleGame.Start();
@@ -259,10 +254,7 @@ public class EmmaStream
                 break;
 
             case "words":
-                if (AnagramUI != null)
-                {
-                    AnagramUI.Stop();
-                }
+                AnagramUI?.Stop();
 
                 var anagramGame = new AnagramGame(WordService.ActiveLexicon);
                 anagramGame.Start();
@@ -271,10 +263,7 @@ public class EmmaStream
                 break;
 
             case "learn":
-                if (LearnUI != null)
-                {
-                    LearnUI.Stop();
-                }
+                LearnUI?.Stop();
 
                 string file1 = Path.Combine(Properties.Settings.Default.BaseFolder, "learn", "CSW21-word-learn.txt");
                 string file2 = Path.Combine(Properties.Settings.Default.BaseFolder, "learn", "CSW21-alphagram-learn.txt");
@@ -387,7 +376,7 @@ public class EmmaStream
             _ => "#"
         };
         
-        if (message.EndsWith("#"))
+        if (message.EndsWith('#'))
         {
             return null;
         }
@@ -562,7 +551,7 @@ public class EmmaStream
         }
 
         string what = PlayerQueue.Peek();
-        if (what.Contains(' ')) what = what[..what.IndexOf(" ")];
+        if (what.Contains(' ')) what = what[..what.IndexOf(' ')];
 
         return $"@{what} is next to play";
     }
@@ -579,10 +568,10 @@ public class EmmaStream
         
         string skipped = PlayerQueue.Dequeue();
         PlayerQueue.Enqueue(skipped);
-        if (skipped.Contains(' ')) skipped = skipped[..skipped.IndexOf(" ")];
+        if (skipped.Contains(' ')) skipped = skipped[..skipped.IndexOf(' ')];
 
         string what = PlayerQueue.Peek();
-        if (what.Contains(' ')) what = what[..what.IndexOf(" ")];
+        if (what.Contains(' ')) what = what[..what.IndexOf(' ')];
 
         return $"Skipped {skipped}, @{what} is next to play";
     }
@@ -629,7 +618,7 @@ public class EmmaStream
 
         foreach (string gameDesc in current)
         {
-            if (gameDesc == username.ToLower() || gameDesc.StartsWith(username.ToLower()))
+            if (gameDesc.StartsWith(username, StringComparison.OrdinalIgnoreCase))
             {
                 result = $"{username} has been removed from the queue";
             }
@@ -677,12 +666,13 @@ public class EmmaStream
     {
         if (args.Length != 1) return CommandParser.Help("garden");
 
-        if (!Flowers.ContainsKey(CommandParser.Username))
+        if (!Flowers.TryGetValue(CommandParser.Username, out HashSet<string>? value))
         {
-            Flowers.Add(CommandParser.Username, new HashSet<string>());
+            value = [];
+            Flowers.Add(CommandParser.Username, value);
         }
 
-        int flowerCount = Flowers[CommandParser.Username].Count;
+        int flowerCount = value.Count;
 
         if (flowerCount == 0)
         {
@@ -690,7 +680,7 @@ public class EmmaStream
         }
         else
         {
-            string message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", Flowers[CommandParser.Username])}";
+            string message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", value)}";
 
             if (message.Length > 500)
             {
@@ -771,7 +761,7 @@ public class EmmaStream
         }
 
         string[] flowers =
-        {
+        [
             "agrimony",
             "american willowherb",
             "angelica",
@@ -879,7 +869,7 @@ public class EmmaStream
             "woolly thistle",
             "yarrow",
             "yellow archangel"
-        };
+        ];
 
 
         string message;
@@ -1018,7 +1008,7 @@ public class EmmaStream
     private string English(params string[] args)
     {
         string[] localizedMessages =
-        {
+        [
             "Please speak English in chat.",
             "S'il vous plaît parlez anglais.",
             "Bitte sprechen Sie Englisch.",
@@ -1035,7 +1025,7 @@ public class EmmaStream
             "英語で話してください。",
             "영어로 말해주세요.",
             "请在聊天中使用英语。",
-        };
+        ];
 
         return string.Join(" ", localizedMessages);
     }

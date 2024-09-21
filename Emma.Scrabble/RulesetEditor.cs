@@ -6,7 +6,7 @@ namespace Emma.Scrabble;
 public partial class RulesetEditor : Form
 {
     private readonly WordService m_WordService;
-    private readonly List<(string letter, string display, int count, int points)> Distribution = new();
+    private readonly List<(string letter, string display, int count, int points)> Distribution = [];
 
     public RuleSet RuleSet { get; set; }
 
@@ -335,7 +335,7 @@ public partial class RulesetEditor : Form
                 return true;
             }
 
-            parms = new List<string>();
+            parms = [];
             return false;
         }
 

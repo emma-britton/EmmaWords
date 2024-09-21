@@ -14,7 +14,7 @@ public static class MacondoParser
     /// <param name="input">The stream to read.</param>
     public static IEnumerable<ScrabbleGame> ReadGameFile(Stream input)
     {
-        var ws = new WordService(Program.Config["BaseFolder"]);
+        var ws = new WordService(Program.Config["BaseFolder"] ?? "");
 
         using var reader = new StreamReader(input);
 
@@ -104,7 +104,7 @@ public static class MacondoParser
     /// <param name="input">The stream to read.</param>
     public static IEnumerable<ScrabbleGame> ReadPlayFile(Stream input)
     {
-        var ws = new WordService(Program.Config["BaseFolder"]);
+        var ws = new WordService(Program.Config["BaseFolder"] ?? "");
 
         using var reader = new StreamReader(input);
 
@@ -229,7 +229,7 @@ public static class MacondoParser
                 playBuilder.Append(move, 0, 4);
                 bool dot = false;
                 var crossWordBuilder = new StringBuilder(15);
-                play.AdditionalWords = new List<string>();
+                play.AdditionalWords = [];
 
                 for (int i = 4; i < move.Length; i++)
                 {

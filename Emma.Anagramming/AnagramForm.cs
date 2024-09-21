@@ -42,10 +42,7 @@ namespace Emma.Anagramming
 
         private void Bot_Message(object? sender, StreamMessage e)
         {
-            if (UI != null)
-            {
-                UI.HandleMessage(e);
-            }
+            UI?.HandleMessage(e);
         }
     }
 }

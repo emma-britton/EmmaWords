@@ -2,20 +2,14 @@
 
 namespace Emma.WordLearner;
 
-public class WordLearnUI : Gdi
+public class WordLearnUI(WordLearn wordLearning, Form owner) : Gdi(owner)
 {
-    private readonly WordLearn m_WordLearning;
+    private readonly WordLearn m_WordLearning = wordLearning;
     private string m_Answer = "";
 
     public string Title { get; set; } = "emma word learning";
 
     public Bitmap? Logo { get; set; }
-
-
-    public WordLearnUI(WordLearn wordLearning, Form owner) : base(owner)
-    {
-        m_WordLearning = wordLearning;
-    }
 
 
     public override void HandleKey(KeyEventArgs e)

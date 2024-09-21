@@ -6,7 +6,7 @@ namespace Emma.Lib;
 /// </summary>
 public class WordService
 {
-    private readonly List<Lexicon> m_Lexicons = new();
+    private readonly List<Lexicon> m_Lexicons = [];
 
     /// <summary>
     /// The currently active lexicon.
@@ -40,18 +40,15 @@ public class WordService
     /// <param name="baseFolder">The folder path that contains lexicons, definitions and so on.</param>
     public WordService(string baseFolder)
     {
-        if (baseFolder == null)
-        {
-            baseFolder = ".";
-        }
+        baseFolder ??= ".";
 
         BaseFolder = baseFolder;
 
-        RuleSets = new List<RuleSet>
-        {
+        RuleSets =
+        [
             RuleSet.Standard,
             RuleSet.Super
-        };
+        ];
 
         ActiveRuleSet = RuleSet.Standard;
 

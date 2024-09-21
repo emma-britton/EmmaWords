@@ -19,19 +19,19 @@ internal class Program
     {
         try
         {
-            var wordService = new WordService(Config["BaseFolder"]);
+            var wordService = new WordService(Config["BaseFolder"] ?? "");
             var commandParser = new CommandParser(wordService);
 
             var bot = new TwitchBot
             (
                 commandParser,
-                Config["CommandPrefix"],
-                Config["TwitchClientID"],
-                Config["TwitchBotAccessToken"],
-                Config["TwitchUsername"],
-                Config["TwitchChannelAccessToken"],
-                Config["TwitchChannel"],
-                Config["TwitchChannelID"]
+                Config["CommandPrefix"] ?? "",
+                Config["TwitchClientID"] ?? "",
+                Config["TwitchBotAccessToken"] ?? "",
+                Config["TwitchUsername"] ?? "",
+                Config["TwitchChannelAccessToken"] ?? "",
+                Config["TwitchChannel"] ?? "",
+                Config["TwitchChannelID"] ?? ""
             );
 
             Console.WriteLine("Starting Emma Is Bot...");

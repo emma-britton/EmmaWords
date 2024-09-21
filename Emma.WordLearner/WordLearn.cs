@@ -13,15 +13,15 @@ public class WordLearn
     private readonly string m_AlphagramFile;
     private readonly Random m_Random = new();
     private readonly Lexicon m_Lexicon;
-    private readonly Dictionary<string, int> m_WordScores = new();
-    private readonly List<string> m_Questions = new();
-    private readonly List<string> m_PendingAnswers = new();
+    private readonly Dictionary<string, int> m_WordScores = [];
+    private readonly List<string> m_Questions = [];
+    private readonly List<string> m_PendingAnswers = [];
 
     public string? Question { get; private set; }
-    public List<string> CorrectAnswers { get; } = new();
-    public List<string> MissedAnswers { get; } = new();
-    public List<string> IncorrectGuesses { get; } = new();
-    public List<(string, bool)> AnswerLog { get; } = new();
+    public List<string> CorrectAnswers { get; } = [];
+    public List<string> MissedAnswers { get; } = [];
+    public List<string> IncorrectGuesses { get; } = [];
+    public List<(string, bool)> AnswerLog { get; } = [];
 
 
     /// <summary>

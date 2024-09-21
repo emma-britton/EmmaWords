@@ -5,17 +5,17 @@ namespace Emma.Lib;
 
 public class Gdi : IDisposable
 {
-    private readonly Dictionary<(Color, float), Pen> PenCache = new();
-    private readonly Dictionary<Color, Brush> BrushCache = new();
-    private readonly Dictionary<(string, float), Font> FontCache = new();
-    private readonly Dictionary<(string, string, bool, float, float), float> SizeCache = new();
-    private readonly Dictionary<(string, string, bool, float, float), float> OneLineSizeCache = new();
+    private readonly Dictionary<(Color, float), Pen> PenCache = [];
+    private readonly Dictionary<Color, Brush> BrushCache = [];
+    private readonly Dictionary<(string, float), Font> FontCache = [];
+    private readonly Dictionary<(string, string, bool, float, float), float> SizeCache = [];
+    private readonly Dictionary<(string, string, bool, float, float), float> OneLineSizeCache = [];
 
     private readonly Graphics OriginalGfx;
     private BufferedGraphics BufferedGfx;
     private bool Exit;
-    private bool Events;
-    private System.Windows.Forms.Timer Timer = new();
+    private readonly bool Events;
+    private readonly System.Windows.Forms.Timer Timer = new();
 
     public bool Started { get; set; }
     public bool Visible { get; set; } = true;
@@ -249,7 +249,7 @@ public class Gdi : IDisposable
     {
         var key = (text, fontName, bold, rectangle.Width, rectangle.Height);
 
-        if (SizeCache.ContainsKey(key)) return SizeCache[key];
+        if (SizeCache.TryGetValue(key, out float value)) return value;
 
         lock (Gfx)
         {
@@ -280,7 +280,7 @@ public class Gdi : IDisposable
     {
         var key = (text, fontName, bold, rectangle.Width, rectangle.Height);
 
-        if (OneLineSizeCache.ContainsKey(key)) return OneLineSizeCache[key];
+        if (OneLineSizeCache.TryGetValue(key, out float value)) return value;
 
         lock (Gfx)
         {

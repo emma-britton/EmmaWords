@@ -22,8 +22,8 @@ class StartScreen : Gdi
 
     readonly EmmaStream Stream;
 
-    readonly List<ChatBubble> Chats = new();
-    readonly Dictionary<string, Image> ProfileCache = new();
+    readonly List<ChatBubble> Chats = [];
+    readonly Dictionary<string, Image> ProfileCache = [];
 
     readonly EmoteCache EmoteCache = new();
     readonly Image? BackgroundImage;
@@ -163,16 +163,20 @@ class StartScreen : Gdi
             {
                 EmoteCache.LoadTwitch(emote.Id, (int)EMOTE_SIZE);
                 emoteIds.Add(emote.Id);
-                text = text[..emote.StartIndex] + new string(' ', emote.EndIndex - emote.StartIndex + 1) + text[(emote.EndIndex + 1)..];
+
+                if (text != null)
+                {
+                    text = text[..emote.StartIndex] + new string(' ', emote.EndIndex - emote.StartIndex + 1) + text[(emote.EndIndex + 1)..];
+                }
             }
         }
 
         text = $" {text} ";
 
         string[] extraEmotes =
-        {
+        [
             "catJAM"
-        };
+        ];
 
         foreach (string emote in extraEmotes)
         {
@@ -204,7 +208,7 @@ class StartScreen : Gdi
                 using var client = new WebClient();
                 string tempfile = @"C:\Users\huggl\emotes\profile_" + message.Username + ".jpg";
 
-                if (!File.Exists(tempfile))
+                if (!File.Exists(tempfile) && Stream.TwitchBot != null)
                 {
                     string profileurl = Stream.TwitchBot.GetProfilePicUrl(message.Username);
                     client.DownloadFile(new Uri(profileurl), tempfile);
@@ -250,7 +254,7 @@ class StartScreen : Gdi
             textWidth = Math.Min(BUBBLE_WIDTH, Math.Max(measure.Width + bubbleFiller, titleMeasure.Width + bubbleFiller));
         }
 
-        if (chat.EmoteIds.Any())
+        if (chat.EmoteIds.Count != 0)
         {
             bubbleHeight += EMOTE_SIZE;
             emotesWidth = Math.Min(BUBBLE_WIDTH, Math.Max(bubbleFiller + (EMOTE_SIZE + BUBBLE_VMARGIN) * chat.EmoteIds.Count, titleMeasure.Width + bubbleFiller));
@@ -258,7 +262,7 @@ class StartScreen : Gdi
 
         float bubbleWidth = Math.Max(textWidth, emotesWidth);
 
-        if (text.Trim() != "" && chat.EmoteIds.Any())
+        if (text.Trim() != "" && chat.EmoteIds.Count != 0)
         {
             bubbleHeight += BUBBLE_YMARGIN;
         }

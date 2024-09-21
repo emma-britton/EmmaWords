@@ -5,17 +5,21 @@ namespace Emma.Lib;
 /// <summary>
 /// A collection of words that are playable under a particular rule set.
 /// </summary>
-public class Lexicon : IEnumerable<string>
+/// <remarks>
+/// Creates an empty lexicon.
+/// </remarks>
+/// <param name="name">The lexicon name.</param>
+public class Lexicon(string name) : IEnumerable<string>
 {
     private ILookup<string, string>? m_Anagrams;
 
-    private readonly SortedSet<string> Words = new();
-    private readonly Dictionary<string, int> Adjustments = new();
-    
+    private readonly SortedSet<string> Words = [];
+    private readonly Dictionary<string, int> Adjustments = [];
+
     /// <summary>
     /// The lexicon name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     /// Maps alphagrams to words in this lexicon.
@@ -33,16 +37,6 @@ public class Lexicon : IEnumerable<string>
     /// Number of words in the lexicon.
     /// </summary>
     public int WordCount => Words.Count;
-
-
-    /// <summary>
-    /// Creates an empty lexicon.
-    /// </summary>
-    /// <param name="name">The lexicon name.</param>
-    public Lexicon(string name)
-    {
-        Name = name;
-    }
 
 
     /// <summary>

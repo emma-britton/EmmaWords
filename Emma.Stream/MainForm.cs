@@ -71,27 +71,18 @@ public partial class MainForm : Form
 
     private void GlobalHotkey_KeyPressed(object? sender, KeyPressedEventArgs e)
     {
-        if (UI != null)
-        {
-            UI.HandleKey(new KeyEventArgs(e.Key));
-        }
+        UI?.HandleKey(new KeyEventArgs(e.Key));
     }
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
-        if (UI != null)
-        {
-            UI.HandleKey(e);
-        }
+        UI?.HandleKey(e);
     }
 
 
     private void MainForm_MouseDown(object sender, MouseEventArgs e)
     {
-        if (UI != null)
-        {
-            UI.HandleMouse(e);
-        }
+        UI?.HandleMouse(e);
     }
 
     private void MainForm_Shown(object sender, EventArgs e)
