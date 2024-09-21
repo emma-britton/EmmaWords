@@ -345,7 +345,7 @@ public class EmmaStream
                 "12:00-16:00 (Central Europe time)",
 
             "sarahwithstars" =>
-                "Sarah is calm, kind and caring, she has recently been playing Cult of the Lamb and Elden Ring. Schedule varies, typically a few streams a week " +
+                "Sarah is calm, kind and caring, she has been playing many games including Cosmic Express and Elden Ring. Schedule varies, typically a few streams a week " +
                     "starting around 8-10am (UK time)",
 
             "dragongirl_89" =>
@@ -645,7 +645,19 @@ public class EmmaStream
     {
         if (args.Length != 1) return CommandParser.Help("raid");
 
-        return "gurchyPurple gurchyPurple GURCHY RAID gurchyPurple gurchyPurple";
+        string[] raidMessages =
+        [
+            "GURCHY RAID",
+            "gurchy gang gurchy gang gurchy gang",
+            "we've been trying to contact you about your stream's extended warranty",
+            "cozy floral enthusiasts raiding in"
+        ];
+
+        string randomMessage = raidMessages[new Random().Next(raidMessages.Length)];
+
+        TwitchBot?.SendMessage("gurchyPurple gurchyPurple " + randomMessage + " gurchyPurple gurchyPurple");
+        Thread.Sleep(1000);
+        return "DinoDance DinoDance " + randomMessage + " DinoDance DinoDance";
     }
 
 

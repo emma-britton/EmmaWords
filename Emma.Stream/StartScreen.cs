@@ -402,83 +402,63 @@ class StartScreen : Gdi
 
     public override void HandleKey(KeyEventArgs e)
     {
-        switch (e.KeyCode)
+        if (e.Control && e.Shift && e.KeyCode == Keys.F1)
         {
-            case Keys.F1:
-                Stream.CloseApp();
-                break;
+            Stream.CloseApp();
+        }
 
-            case Keys.F7:
-                Stream.RunCommand("next");
-                break;
+        if (e.Control && e.Shift)
+        {
+            var commands = new Dictionary<Keys, string>
+            {
+                [Keys.F7] = "next",
+                [Keys.F8] = "skip",
+                [Keys.F9] = "raid",
+                [Keys.F10] = "start",
+                [Keys.F11] = "brb",
+                [Keys.F12] = "stop",
+                [Keys.F13] = "game",
+                [Keys.F14] = "shoutout ophelia6277",
+                [Keys.F15] = "",
+                [Keys.F16] = "shoutout sarahwithstars",
+                [Keys.F17] = "shoutout dragongirl_89",
+                [Keys.F18] = "shoutout duustinduude",
+                [Keys.F19] = "shoutout rubyinpixels",
+                [Keys.F20] = "shoutout runibl",
+                [Keys.F21] = "shoutout izzy_the_penguin",
+                [Keys.F22] = "shoutout lana_the_panda",
+                [Keys.F23] = "shoutout alice_sits",
+                [Keys.F24] = "shoutout thenespa"
+            };
 
-            case Keys.F8:
-                Stream.RunCommand("skip");
-                break;
+            if (commands.TryGetValue(e.KeyCode, out string? value) && value != "")
+            {
+                Stream.RunCommand(value);
+            }
+        }
+        else if (e.Control)
+        {
+            var commands = new Dictionary<Keys, string>
+            {
+                [Keys.F7] = "",
+            };
 
-            case Keys.F9:
-                Stream.RunCommand("raid");
-                break;
+            if (commands.TryGetValue(e.KeyCode, out string? value) && value != "")
+            {
+                Stream.RunCommand(value);
+            }
+        }
+        else if (e.Shift)
+        {
+            var commands = new Dictionary<Keys, string>
+            {
+                [Keys.F7] = "",
+            };
 
-            case Keys.F10:
-                Stream.RunCommand("start");
-                break;
-
-            case Keys.F11:
-                Stream.RunCommand("brb");
-                break;
-
-            case Keys.F12:
-                Stream.RunCommand("stop");
-                break;
-
-            case Keys.F13:
-                Stream.RunCommand("game");
-                break;
-
-            case Keys.F14:
-                Stream.RunCommand("discord");
-                break;
-
-            case Keys.F15:
-                Stream.RunCommand("shoutout ophelia6277");
-                break;
-
-            case Keys.F16:
-                Stream.RunCommand("shoutout sarahwithstars");
-                break;
-
-            case Keys.F17:
-                Stream.RunCommand("shoutout dragongirl_89");
-                break;
-
-            case Keys.F18:
-                Stream.RunCommand("shoutout duustinduude");
-                break;
-
-            case Keys.F19:
-                Stream.RunCommand("shoutout rubyinpixels");
-                break;
-
-            case Keys.F20:
-                Stream.RunCommand("shoutout runibl");
-                break;
-
-            case Keys.F21:
-                Stream.RunCommand("shoutout izzy_the_penguin");
-                break;
-
-            case Keys.F22:
-                Stream.RunCommand("shoutout lana_the_panda");
-                break;
-
-            case Keys.F23:
-                Stream.RunCommand("shoutout alice_sits");
-                break;
-
-            case Keys.F24:
-                Stream.RunCommand("shoutout thenespa");
-                break;
+            if (commands.TryGetValue(e.KeyCode, out string? value) && value != "")
+            {
+                Stream.RunCommand(value);
+            }
         }
     }
 }
