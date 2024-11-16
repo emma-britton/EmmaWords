@@ -407,7 +407,7 @@ class StartScreen : Gdi
             Stream.CloseApp();
         }
 
-        if (e.Control && e.Shift)
+        if (!e.Control && !e.Shift)
         {
             var commands = new Dictionary<Keys, string>
             {
@@ -419,7 +419,7 @@ class StartScreen : Gdi
                 [Keys.F12] = "stop",
                 [Keys.F13] = "game",
                 [Keys.F14] = "shoutout ophelia6277",
-                [Keys.F15] = "",
+                [Keys.F15] = "shoutout thenespa",
                 [Keys.F16] = "shoutout sarahwithstars",
                 [Keys.F17] = "shoutout dragongirl_89",
                 [Keys.F18] = "shoutout duustinduude",

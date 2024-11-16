@@ -28,7 +28,7 @@ public class EmmaStream
 
     private readonly string Player1Name = "Player 1";
     private readonly string Player2Name = "Player 2";
-    
+
     public TwitchBot? TwitchBot { get; set; }
     public AlertUI? AlertUI { get; set; }
 
@@ -62,7 +62,7 @@ public class EmmaStream
         CommandParser.AddCommand("common", Commit, "comkmit PLAY -- Commit a play in a game of Scrabble. Play should be formatted like: H6 WORD", Permission.Anyone);
         CommandParser.AddCommand("guess", Guess, "guess WORD -- Guess an answer to the anagramming game", Permission.Anyone);
         CommandParser.AddCommand("edit", Edit, "edit -- Edit the current rule set", Permission.VIP);
-        CommandParser.AddCommand("join", Join, "join -- Join the queue to play Scrabble with Emma", Permission.Anyone);
+        CommandParser.AddCommand("join", Join, "join -- Join the game that Emma is playing", Permission.Anyone);
         CommandParser.AddCommand("next", Next, "next -- Start the next game of Scrabble", Permission.VIP);
         CommandParser.AddCommand("add", Add, "add PLAYER -- Add a game of Scrabble to the queue", Permission.VIP);
         CommandParser.AddCommand("remove", Remove, "remove PLAYER -- Remove a game of Scrabble from the queue", Permission.VIP);
@@ -85,6 +85,7 @@ public class EmmaStream
         CommandParser.AddCommand("addquote", AddQuote, "addquote QUOTE -- Add a quote to the quote list", Permission.VIP);
         CommandParser.AddCommand("removequote", RemoveQuote, "removequote NUMBER -- Remove a quote from the quote list", Permission.VIP);
         CommandParser.AddCommand("editquote", EditQuote, "editquote NUMBER QUOTE -- Edit a quote in the quote list", Permission.VIP);
+        CommandParser.AddCommand("best", Best, "best -- Be the best", Permission.Anyone);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -273,7 +274,7 @@ public class EmmaStream
                 MainForm.UI = LearnUI;
                 break;
         }
-        
+
         return null;
     }
 
@@ -291,7 +292,7 @@ public class EmmaStream
         StartScreen.StartStream();
         return null;
     }
-    
+
 
     private string? End(params string[] args)
     {
@@ -375,7 +376,7 @@ public class EmmaStream
 
             _ => "#"
         };
-        
+
         if (message.EndsWith('#'))
         {
             return null;
@@ -507,6 +508,8 @@ public class EmmaStream
 
     private string? Join(params string[] args)
     {
+        return "If you own Core Keeper, join my game with the ID: 6JQLJPBR";
+
         if (!m_QueueActive)
         {
             return "Sorry, Emma is not currently playing with viewers";
@@ -565,7 +568,7 @@ public class EmmaStream
         {
             return "The queue is empty";
         }
-        
+
         string skipped = PlayerQueue.Dequeue();
         PlayerQueue.Enqueue(skipped);
         if (skipped.Contains(' ')) skipped = skipped[..skipped.IndexOf(' ')];
@@ -640,7 +643,7 @@ public class EmmaStream
         return null;
     }
 
-    
+
     private string? Raid(params string[] args)
     {
         if (args.Length != 1) return CommandParser.Help("raid");
@@ -655,9 +658,21 @@ public class EmmaStream
 
         string randomMessage = raidMessages[new Random().Next(raidMessages.Length)];
 
-        TwitchBot?.SendMessage("gurchyPurple gurchyPurple " + randomMessage + " gurchyPurple gurchyPurple");
+        string[] emotes =
+        {
+            "gurchyPurple",
+            "gurchySpin",
+            "gurchyRed",
+            "gurchyWiggle",
+            "gurchyPaleBlue"
+        };
+
+        string randomEmote = emotes[new Random().Next(emotes.Length)];
+        string nonSub = "DinoDance";
+        TwitchBot?.SendMessage($"{randomEmote} {randomMessage} {randomEmote}");
+
         Thread.Sleep(1000);
-        return "DinoDance DinoDance " + randomMessage + " DinoDance DinoDance";
+        return $"{nonSub} {randomMessage} {nonSub}";
     }
 
 
@@ -715,7 +730,7 @@ public class EmmaStream
         }
 
         Firsts[username]++;
-        
+
         string message = $"@{username} is first today gurchyPurple ";
 
         if (Firsts[username] == 1)
@@ -755,7 +770,7 @@ public class EmmaStream
 
             message += $"this is their {ordinal} time being first";
         }
-        
+
         File.WriteAllText(Path.Combine(Properties.Settings.Default.BaseFolder, "firsts.txt"), string.Join("\r\n", Firsts.Select(kvp => $"{kvp.Key}\t{kvp.Value}")));
 
         return message;
@@ -776,34 +791,52 @@ public class EmmaStream
         [
             "agrimony",
             "american willowherb",
+            "amphibious bistort",
             "angelica",
+            "annual mercury",
             "annual pearlwort",
             "autumn hawkbit",
             "barren strawberry",
+            "bath asparagus",
             "beaked hawk's-beard",
             "bell heather",
             "betony",
+            "bilberry",
             "bird's-foot trefoil",
             "biting stonecrop",
             "bittersweet",
             "black bryony",
+            "black medick",
+            "black spleenwort",
+            "bladder campion",
             "bluebell",
             "bristly ox-tongue",
             "broad-leaved willowherb",
             "brooklime",
+            "buddleia",
             "bugle",
             "bulbous buttercup",
+            "bulrush",
+            "burnet saxifrage",
             "bush vetch",
             "butterbur",
             "carline thistle",
             "cat's ear",
+            "celery-leaved buttercup",
+            "chalk milkwort",
             "charlock",
+            "chicory",
             "cleavers",
+            "clustered dock",
+            "common mallow",
+            "common milkwort",
+            "common mouse-ear",
             "common spotted orchid",
             "corky-fruited water dropwort",
             "cowslip",
             "creeping cinquefoil",
             "cuckoo flower",
+            "curled dock",
             "cut-leaved crane's-bill",
             "daffodil",
             "daisy",
@@ -896,7 +929,7 @@ public class EmmaStream
 
         flower = unownedFlowers[Random.Next(unownedFlowers.Length)];
         message = $"@{username} has received: {flower} gurchyPurple ";
-        
+
         value.Add(flower);
         int flowerCount = value.Count;
         message += $"They now have {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their collection!";
@@ -1138,4 +1171,33 @@ public class EmmaStream
 
         return $"Quote #{index} updated";
     }
+
+
+    private string? Best(params string[] args)
+    {
+        string name = CommandParser.Username;
+
+        if (args.Length == 2)
+        {
+            name = args[1];
+        }
+
+        string best = "";
+
+        foreach (string word in WordService.GetLexicon("CEL"))
+        {
+            if (name.Contains(word, StringComparison.OrdinalIgnoreCase) && word.Length > best.Length)
+            {
+                best = word.ToLower();
+            }
+        }
+
+        if (best.Length < 3)
+        {
+            return $"{name} is the best";
+        }
+
+        return $"{name} is best {best}";
+    }
 }
+
