@@ -42,7 +42,11 @@ public partial class WordLearnConfig : Form
     private void LexiconList_SelectedIndexChanged(object sender, EventArgs e)
     {
         UpdateStats();
-        Settings.Default.Lexicon = LexiconList.SelectedItem.ToString();
+
+        if (LexiconList.SelectedItem != null)
+        {
+            Settings.Default.Lexicon = LexiconList.SelectedItem.ToString();
+        }
     }
 
 
@@ -139,7 +143,7 @@ public partial class WordLearnConfig : Form
 
                     foreach (string line in File.ReadLines(utilityFile))
                     {
-                        if (!line.StartsWith("/") && line.Trim().Length > 0)
+                        if (!line.StartsWith('/') && line.Trim().Length > 0)
                         {
                             string word = line.Trim();
                             double score = (double)1 / index;

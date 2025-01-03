@@ -154,7 +154,7 @@ public class AnagramGame(Lexicon lexicon)
         {
             if (word.Length >= MinWordLength && word.Length <= MaxWordLength)
             {
-                string question = new(word.Order().ToArray());
+                string question = new([.. word.Order()]);
 
                 if (!questionsUsed.Contains(question))
                 {
@@ -191,7 +191,7 @@ public class AnagramGame(Lexicon lexicon)
         }
 
         var guess = new AnagramGuess(username, word);
-        string alphagram = new(word.Order().ToArray());
+        string alphagram = new([.. word.Order()]);
         bool foundQuestion = false;
 
         for (int i = 0; i < ActiveQuestions.Count; i++)

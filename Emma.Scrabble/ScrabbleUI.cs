@@ -129,7 +129,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
                         var point2 = origin + new SizeF(-g, spaceWidth / 2 - d);
                         var point3 = origin + new SizeF(-g, spaceWidth / 2 + d);
 
-                        Gfx.FillPolygon(GetBrush(spaceColor), new[] { point1, point2, point3 });
+                        Gfx.FillPolygon(GetBrush(spaceColor), [point1, point2, point3]);
                     }
 
                     if (j < BoardSize - 1)
@@ -138,7 +138,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
                         var point2 = origin + new SizeF(spaceWidth + g, spaceWidth / 2 - d);
                         var point3 = origin + new SizeF(spaceWidth + g, spaceWidth / 2 + d);
 
-                        Gfx.FillPolygon(GetBrush(spaceColor), new[] { point1, point2, point3 });
+                        Gfx.FillPolygon(GetBrush(spaceColor), [point1, point2, point3]);
                     }
 
                     if (i > 0)
@@ -147,7 +147,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
                         var point2 = origin + new SizeF(spaceWidth / 2 - d, -g);
                         var point3 = origin + new SizeF(spaceWidth / 2 + d, -g);
 
-                        Gfx.FillPolygon(GetBrush(spaceColor), new[] { point1, point2, point3 });
+                        Gfx.FillPolygon(GetBrush(spaceColor), [point1, point2, point3]);
                     }
 
                     if (i < BoardSize - 1)
@@ -156,7 +156,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
                         var point2 = origin + new SizeF(spaceWidth / 2 - d, spaceWidth + g);
                         var point3 = origin + new SizeF(spaceWidth / 2 + d, spaceWidth + g);
 
-                        Gfx.FillPolygon(GetBrush(spaceColor), new[] { point1, point2, point3 });
+                        Gfx.FillPolygon(GetBrush(spaceColor), [point1, point2, point3]);
                     }
                 }
             }
@@ -632,7 +632,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
         {
             char letter = e.KeyCode.ToString().First();
 
-            if (letter >= 'A' && letter <= 'Z' && RuleSet.TileDistribution.ContainsKey(letter.ToString()) && 
+            if (letter >= 'A' && letter <= 'Z' && RuleSet.TileDistribution.ContainsKey(letter.ToString()) &&
                 Cursor.X > -1 && Cursor.X < BoardSize && Cursor.Y > -1 && Cursor.Y < BoardSize)
             {
                 if (Free(Cursor.X, Cursor.Y))
@@ -641,7 +641,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
                 }
             }
         }
-        else if (e.KeyCode.ToString().StartsWith("D") && e.KeyCode.ToString().Length == 2)
+        else if (e.KeyCode.ToString().StartsWith('D') && e.KeyCode.ToString().Length == 2)
         {
             if (Free(Cursor.X, Cursor.Y))
             {
@@ -1075,7 +1075,7 @@ public class ScrabbleUI(ScrabbleGame game, Form owner) : Gdi(owner)
     private void SetTile(int j, int i, ScrabbleTile? tile) => Game.Board[j, i] = tile;
 
 
-    private void Shuffle<T>(IList<T> list)
+    private void Shuffle<T>(List<T> list)
     {
         int n = list.Count;
 

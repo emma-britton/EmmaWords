@@ -86,6 +86,7 @@ public class EmmaStream
         CommandParser.AddCommand("removequote", RemoveQuote, "removequote NUMBER -- Remove a quote from the quote list", Permission.VIP);
         CommandParser.AddCommand("editquote", EditQuote, "editquote NUMBER QUOTE -- Edit a quote in the quote list", Permission.VIP);
         CommandParser.AddCommand("best", Best, "best -- Be the best", Permission.Anyone);
+        CommandParser.AddCommand("first", First, "first -- Show who was first", Permission.Anyone);
 
         CommandParser.AddAlias("sub", "subscribe");
         CommandParser.AddAlias("so", "shoutout");
@@ -691,27 +692,34 @@ public class EmmaStream
 
     private string? Garden(params string[] args)
     {
-        if (args.Length != 1) return CommandParser.Help("garden");
+        if (args.Length > 2) return CommandParser.Help("garden");
 
-        if (!Flowers.TryGetValue(CommandParser.Username, out HashSet<string>? value))
+        string name = CommandParser.Username;
+
+        if (args.Length == 2)
+        {
+            name = args[1];
+        }
+
+        if (!Flowers.TryGetValue(name, out HashSet<string>? value))
         {
             value = [];
-            Flowers.Add(CommandParser.Username, value);
+            Flowers.Add(name, value);
         }
 
         int flowerCount = value.Count;
 
         if (flowerCount == 0)
         {
-            return $"@{CommandParser.Username} has no flowers in their garden";
+            return $"@{name} has no flowers in their garden";
         }
         else
         {
-            string message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", value)}";
+            string message = $"@{name} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden: {string.Join(", ", value)}";
 
             if (message.Length > 500)
             {
-                message = $"@{CommandParser.Username} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden";
+                message = $"@{name} has {flowerCount} {(flowerCount == 1 ? "flower" : "flowers")} in their garden";
             }
 
             return message;
@@ -1075,5 +1083,32 @@ public class EmmaStream
 
         return $"{name} is best {best}";
     }
-}
 
+
+    private string? First(params string[] args)
+    {
+        string name = CommandParser.Username;
+
+        if (args.Length == 2)
+        {
+            name = args[1];
+        }
+
+        if (!Firsts.TryGetValue(name.ToLower(), out int count))
+        {
+            return $"{name} has never been first";
+        }
+
+        if (count == 1)
+        {
+            return $"{name} has been first once";
+        }
+
+        if (count == 2)
+        {
+            return $"{name} has been first twice";
+        }
+
+        return $"{name} has been first {count} times";
+    }
+}

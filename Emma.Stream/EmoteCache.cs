@@ -1,6 +1,6 @@
 ﻿using ImageMagick;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 
 namespace Emma.Stream;
 
@@ -14,13 +14,16 @@ public class EmoteCache
         {
             try
             {
-                using var client = new WebClient();
+                using var client = new HttpClient();
                 string tempfile = @"C:\Users\emmab\OneDrive\Emma\streaming\emotecache\" + key + ".gif";
 
                 if (!File.Exists(tempfile))
                 {
                     string url = @"https://static-cdn.jtvnw.net/emoticons/v2/" + key + "/default/light/3.0";
-                    client.DownloadFile(new Uri(url), tempfile);
+                    var response = client.GetAsync(url).Result;
+                    response.EnsureSuccessStatusCode();
+                    var fileBytes = response.Content.ReadAsByteArrayAsync().Result;
+                    File.WriteAllBytes(tempfile, fileBytes);
 
                     using var collection = new MagickImageCollection(tempfile);
                     collection.Coalesce();
@@ -44,7 +47,6 @@ public class EmoteCache
         return Cache[key];
     }
 
-  
     public Image? LoadCustom(string key)
     {
         if (!Cache.TryGetValue(key, out Image? value))
@@ -62,7 +64,6 @@ public class EmoteCache
 
         return value;
     }
-
 
     public Image? Get(string key)
     {
