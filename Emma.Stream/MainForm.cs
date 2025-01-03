@@ -1,9 +1,11 @@
 using Emma.Lib;
+using System.ComponentModel;
 
 namespace Emma.Stream;
 
 public partial class MainForm : Form
 {
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public QueueForm? QueueForm { get; set; }
 
     private bool IsShown = false;
@@ -12,6 +14,7 @@ public partial class MainForm : Form
     private readonly GlobalHotkey m_Hotkey = new();
 
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Gdi? UI
     {
         get => m_UI;

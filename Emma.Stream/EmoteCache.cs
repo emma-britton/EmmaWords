@@ -8,7 +8,7 @@ public class EmoteCache
 {
     private readonly Dictionary<string, Image> Cache = [];
 
-    public Image LoadTwitch(string key, int size)
+    public Image LoadTwitch(string key, uint size)
     {
         if (!Cache.ContainsKey(key))
         {

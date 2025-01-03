@@ -1,5 +1,6 @@
 ﻿using Emma.Lib;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace Emma.Scrabble;
 
@@ -8,6 +9,7 @@ public partial class RulesetEditor : Form
     private readonly WordService m_WordService;
     private readonly List<(string letter, string display, int count, int points)> Distribution = [];
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public RuleSet RuleSet { get; set; }
 
     public string Player1Name => FirstPlayerName.Text;

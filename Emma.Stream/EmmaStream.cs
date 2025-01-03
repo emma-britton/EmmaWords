@@ -52,7 +52,7 @@ public class EmmaStream
         CommandParser.AddCommand("discord", Discord, "discord -- Show the discord link", Permission.Anyone);
         CommandParser.AddCommand("message", ChangeMessage, "message -- Change the message on the title screen", Permission.Moderator);
         CommandParser.AddCommand("subscribe", Subscribe, "subscribe -- Show a message about subscriptions", Permission.Anyone);
-        CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer", Permission.VIP);
+        CommandParser.AddCommand("shoutout", Shoutout, "shoutout CHANNEL -- Shout out another streamer", Permission.Moderator);
         CommandParser.AddCommand("stream", Stream, "stream MODE -- Set the stream mode", Permission.Moderator);
         CommandParser.AddCommand("start", Start, "start -- Show the start screen", Permission.Moderator);
         CommandParser.AddCommand("end", End, "end -- Show the end screen", Permission.Moderator);
@@ -334,6 +334,8 @@ public class EmmaStream
             return "no they're not real";
         }
 
+        return username + " is good streamer you should follow twitch.tv/" + username;
+
         if (username == "wanderer15")
         {
             return "wanderer15 makes great Scrabble content on YouTube: youtube.com/@wanderer15";
@@ -508,8 +510,6 @@ public class EmmaStream
 
     private string? Join(params string[] args)
     {
-        return "If you own Core Keeper, join my game with the ID: 6JQLJPBR";
-
         if (!m_QueueActive)
         {
             return "Sorry, Emma is not currently playing with viewers";
@@ -659,13 +659,13 @@ public class EmmaStream
         string randomMessage = raidMessages[new Random().Next(raidMessages.Length)];
 
         string[] emotes =
-        {
+        [
             "gurchyPurple",
             "gurchySpin",
             "gurchyRed",
             "gurchyWiggle",
             "gurchyPaleBlue"
-        };
+        ];
 
         string randomEmote = emotes[new Random().Next(emotes.Length)];
         string nonSub = "DinoDance";
@@ -787,135 +787,7 @@ public class EmmaStream
             Flowers.Add(username, value);
         }
 
-        string[] flowers =
-        [
-            "agrimony",
-            "american willowherb",
-            "amphibious bistort",
-            "angelica",
-            "annual mercury",
-            "annual pearlwort",
-            "autumn hawkbit",
-            "barren strawberry",
-            "bath asparagus",
-            "beaked hawk's-beard",
-            "bell heather",
-            "betony",
-            "bilberry",
-            "bird's-foot trefoil",
-            "biting stonecrop",
-            "bittersweet",
-            "black bryony",
-            "black medick",
-            "black spleenwort",
-            "bladder campion",
-            "bluebell",
-            "bristly ox-tongue",
-            "broad-leaved willowherb",
-            "brooklime",
-            "buddleia",
-            "bugle",
-            "bulbous buttercup",
-            "bulrush",
-            "burnet saxifrage",
-            "bush vetch",
-            "butterbur",
-            "carline thistle",
-            "cat's ear",
-            "celery-leaved buttercup",
-            "chalk milkwort",
-            "charlock",
-            "chicory",
-            "cleavers",
-            "clustered dock",
-            "common mallow",
-            "common milkwort",
-            "common mouse-ear",
-            "common spotted orchid",
-            "corky-fruited water dropwort",
-            "cowslip",
-            "creeping cinquefoil",
-            "cuckoo flower",
-            "curled dock",
-            "cut-leaved crane's-bill",
-            "daffodil",
-            "daisy",
-            "devil's-bit scabious",
-            "dove's-foot crane's-bill",
-            "early purple orchid",
-            "enchanter's nightshade",
-            "eyebright",
-            "fairy flax",
-            "field bindweed",
-            "field forget-me-not",
-            "field rose",
-            "garlic mustard",
-            "germander speedwell",
-            "greater knapweed",
-            "ground ivy",
-            "guelder rose",
-            "harebell",
-            "heath milkwort",
-            "herb robert",
-            "ivy-leaved toadflax",
-            "lady's bedstraw",
-            "lesser celandine",
-            "lesser trefoil",
-            "long-headed poppy",
-            "long-stalked crane's-bill",
-            "marsh marigold",
-            "marsh thistle",
-            "meadow buttercup",
-            "meadow crane's-bill",
-            "meadow vetchling",
-            "musk mallow",
-            "nipplewort",
-            "oxeye daisy",
-            "perforate st john's-wort",
-            "pignut",
-            "primrose",
-            "ragged robin",
-            "ramsons",
-            "red campion",
-            "red clover",
-            "red dead-nettle",
-            "red valerian",
-            "rock-rose",
-            "rose campion",
-            "rosebay willowherb",
-            "rough hawkbit",
-            "sainfoin",
-            "salad burnet",
-            "scarlet pimpernel",
-            "scentless mayweed",
-            "selfheal",
-            "sheep's sorrel",
-            "shining crane's-bill",
-            "small scabious",
-            "smooth hawksbeard",
-            "snowdrop",
-            "sorrel",
-            "southern marsh orchid",
-            "spear thistle",
-            "spiny rest harrow",
-            "sticky mouse-ear",
-            "sweet violet",
-            "tansy",
-            "thyme-leaved speedwell",
-            "tormentil",
-            "tufted vetch",
-            "water avens",
-            "water mint",
-            "wild strawberry",
-            "wood anemone",
-            "wood avens",
-            "wood sorrel",
-            "woodruff",
-            "woolly thistle",
-            "yarrow",
-            "yellow archangel"
-        ];
-
+        string[] flowers = File.ReadAllLines(Path.Combine(Properties.Settings.Default.BaseFolder, "flowernames.txt"));
 
         string message;
         string flower;
@@ -1096,7 +968,8 @@ public class EmmaStream
     {
         if (args.Length == 1 && Quotes.Count > 0)
         {
-            return Quotes[new Random().Next(Quotes.Count)];
+            int random = new Random().Next(Quotes.Count);
+            return $"Quote #{random + 1}: " + Quotes[random];
         }
 
         if (args[1] == "add")
@@ -1106,7 +979,7 @@ public class EmmaStream
 
         if (args[1] == "remove" && Quotes.Count > 0)
         {
-            return RemoveQuote(["addquote", .. args.Skip(2)]);
+            return RemoveQuote(["removequote", .. args.Skip(2)]);
         }
 
         if (args[1] == "edit" && Quotes.Count > 0)
@@ -1124,7 +997,7 @@ public class EmmaStream
             return null;
         }
 
-        return Quotes[index - 1];
+        return $"Quote #{index}: " + Quotes[index - 1];
     }
 
 
@@ -1184,11 +1057,14 @@ public class EmmaStream
 
         string best = "";
 
-        foreach (string word in WordService.GetLexicon("CEL"))
+        if (WordService.GetLexicon("CEL") is Lexicon lex)
         {
-            if (name.Contains(word, StringComparison.OrdinalIgnoreCase) && word.Length > best.Length)
+            foreach (string word in lex)
             {
-                best = word.ToLower();
+                if (name.Contains(word, StringComparison.OrdinalIgnoreCase) && word.Length > best.Length)
+                {
+                    best = word.ToLower();
+                }
             }
         }
 

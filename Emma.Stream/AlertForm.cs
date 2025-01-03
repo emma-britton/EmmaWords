@@ -1,8 +1,11 @@
-﻿
+﻿using System.ComponentModel;
+
+
 namespace Emma.Stream;
 
 public partial class AlertForm : Form
 {
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public AlertUI? UI { get; set; }
 
 

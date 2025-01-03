@@ -161,7 +161,7 @@ class StartScreen : Gdi
         {
             foreach (var emote in message.Emotes)
             {
-                EmoteCache.LoadTwitch(emote.Id, (int)EMOTE_SIZE);
+                EmoteCache.LoadTwitch(emote.Id, (uint)EMOTE_SIZE);
                 emoteIds.Add(emote.Id);
 
                 if (text != null)
