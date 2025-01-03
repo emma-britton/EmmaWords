@@ -114,7 +114,7 @@ partial class CommandParser
             }
             else
             {
-                string alphagram = new(what.Order().ToArray());
+                string alphagram = new([.. what.Order()]);
 
                 foreach (var anagram in WordService.ActiveLexicon.Alphagrams[alphagram])
                 {
@@ -342,12 +342,12 @@ partial class CommandParser
 
         string result = word + WordService.GetSymbol(word);
 
-        if (preHooks.Any())
+        if (preHooks.Count > 0)
         {
             result = $"[{string.Join(", ", preHooks)}] " + result;
         }
 
-        if (postHooks.Any())
+        if (postHooks.Count > 0)
         {
             result += $" [{string.Join(", ", postHooks)}]";
         }
@@ -489,7 +489,7 @@ partial class CommandParser
 
         foreach (var def in WordService.Definitions.GetDefinitions(word))
         {
-            if (def != null && def.See != null && def.See.ToUpper() != word && def.See != "")
+            if (def != null && def.See != null && !def.See.Equals(word, StringComparison.OrdinalIgnoreCase) && def.See != "")
             {
                 possibleSees.Add(def.See.ToUpper());
             }
@@ -502,7 +502,8 @@ partial class CommandParser
 
         foreach (var otherDef in WordService.Definitions.GetDefinitions())
         {
-            if (otherDef.See != null && (otherDef.See == cmp || (possibleSees.Contains(otherDef.See.ToUpper()) && otherDef.Word.ToUpper() != word)))
+            if (otherDef.See != null && (otherDef.See == cmp || (possibleSees.Contains(otherDef.See.ToUpper()) && 
+                !otherDef.Word.Equals(word, StringComparison.OrdinalIgnoreCase))))
             {
                 if (WordService.AllLexicons.Contains(otherDef.Word.ToUpper()))
                 {
@@ -569,7 +570,7 @@ partial class CommandParser
 
         foreach (var rs in WordService.RuleSets.OrderByDescending(x => x.Name))
         {
-            if (rs.Name.ToLower().StartsWith(name))
+            if (rs.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase))
             {
                 ruleset = rs;
             }

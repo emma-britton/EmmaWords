@@ -44,7 +44,7 @@ public partial class AnagramConfig : Form
     private void StartButton_Click(object sender, EventArgs e)
     {
         var settings = Properties.Settings.Default;
-        string? lexiconName = LexiconList.SelectedItem.ToString();
+        string? lexiconName = LexiconList.SelectedItem?.ToString();
 
         if (lexiconName != null)
         { 

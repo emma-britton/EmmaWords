@@ -1,6 +1,4 @@
-﻿#pragma warning disable SYSLIB1045
-
-using Emma.Lib;
+﻿using Emma.Lib;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -156,7 +154,7 @@ public class WiktionaryParser
 
             if (def.Pos == PartOfSpeech.Noun)
             {
-                string possessive = def.Word.EndsWith("s") ? def.Word + "'" : def.Word + "'s";
+                string possessive = def.Word.EndsWith('s') ? def.Word + "'" : def.Word + "'s";
 
                 var possessiveDef = new Definition(possessive, PartOfSpeech.Noun, possessive, "Possessive form of " + def.Word.ToUpper())
                 {
@@ -237,7 +235,7 @@ public class WiktionaryParser
 
         definition = definition.Trim(' ', ':', ' ', '.');
 
-        if (definition.StartsWith("(") && definition.EndsWith(")"))
+        if (definition.StartsWith('(') && definition.EndsWith(')'))
         {
             return null;
         }
@@ -325,7 +323,7 @@ public class WiktionaryParser
 
             if (templateName.Contains(':') ||
                 templateName.StartsWith("rf") ||
-                templateName.StartsWith("+"))
+                templateName.StartsWith('+'))
             {
                 return "";
             }

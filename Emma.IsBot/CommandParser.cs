@@ -7,9 +7,9 @@ public partial class CommandParser
 {
     private string m_Username;
     private readonly WordService WordService;
-    private readonly Dictionary<string, Command> Commands = new();
-    private readonly Dictionary<string, string> Aliases = new();
-    private readonly Dictionary<string, Func<string, string, string?>> Rewards = new();
+    private readonly Dictionary<string, Command> Commands = [];
+    private readonly Dictionary<string, string> Aliases = [];
+    private readonly Dictionary<string, Func<string, string, string?>> Rewards = [];
 
     public string Username => m_Username;
 
@@ -119,7 +119,7 @@ public partial class CommandParser
         if (Username.Equals("machacatcha", StringComparison.OrdinalIgnoreCase))
         {
             string[] firstPart =
-            {
+            [
                 "macha",
                 "matcha",
                 "matcher",
@@ -131,10 +131,10 @@ public partial class CommandParser
                 "mashed",
                 "mashier",
                 "macho"
-            };
+            ];
 
             string[] secondPart =
-            {
+            [
                 "catcha",
                 "catch",
                 "catcher",
@@ -148,7 +148,7 @@ public partial class CommandParser
                 "cashtato",
                 "cashier",
                 "catcho"
-            };
+            ];
 
             var random = new Random();
             return $"{firstPart[random.Next(firstPart.Length)]} {secondPart[random.Next(secondPart.Length)]}";

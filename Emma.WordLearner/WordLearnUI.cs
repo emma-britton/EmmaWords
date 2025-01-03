@@ -126,7 +126,7 @@ public class WordLearnUI(WordLearn wordLearning, Form owner) : Gdi(owner)
         var wrongListTitle = new RectangleF(padding, logArea.Bottom + padding, logTitle.Width, logTitle.Height);
         FillRectangle(purple, wrongListTitle);
 
-        if (m_WordLearning.MissedAnswers.Any())
+        if (m_WordLearning.MissedAnswers.Count > 0)
         {
             DrawFitTextOneLine("MISSED WORDS", "Segoe UI", Color.White, wrongListTitle, CenterLeft);
 
@@ -137,7 +137,7 @@ public class WordLearnUI(WordLearn wordLearning, Form owner) : Gdi(owner)
         {
             DrawFitTextOneLine("INCORRECT ANSWERS", "Segoe UI", Color.White, wrongListTitle, CenterLeft);
 
-            if (m_WordLearning.IncorrectGuesses.Any())
+            if (m_WordLearning.IncorrectGuesses.Count > 0)
             {
                 var incorrectGuessArea = new RectangleF(padding, wrongListTitle.Bottom, wrongListTitle.Width, Area.Height - wrongListTitle.Bottom);
                 DrawFitText(string.Join("\r\n", m_WordLearning.IncorrectGuesses.Order()), "Segoe UI", Color.OrangeRed, incorrectGuessArea, CenterCenter);
@@ -148,7 +148,7 @@ public class WordLearnUI(WordLearn wordLearning, Form owner) : Gdi(owner)
         FillRectangle(purple, correctAnswerTitle);
         DrawFitTextOneLine("CORRECT ANSWERS", "Segoe UI", Color.White, correctAnswerTitle, CenterRight);
 
-        if (m_WordLearning.CorrectAnswers.Any())
+        if (m_WordLearning.CorrectAnswers.Count > 0)
         {
             var correctAnswerArea = new RectangleF(correctTitle.Left, correctAnswerTitle.Bottom, correctTitle.Width, Area.Height - correctAnswerTitle.Bottom);
             DrawFitText(string.Join("\r\n", m_WordLearning.CorrectAnswers.Order()), "Segoe UI", Color.LimeGreen, correctAnswerArea, CenterCenter);

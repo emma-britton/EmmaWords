@@ -3,7 +3,7 @@ using Emma.Stream.Properties;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Media;
-using System.Net;
+using System.Net.Http;
 
 namespace Emma.Stream;
 
@@ -205,13 +205,16 @@ class StartScreen : Gdi
         {
             try
             {
-                using var client = new WebClient();
+                using var client = new HttpClient();
                 string tempfile = @"C:\Users\huggl\emotes\profile_" + message.Username + ".jpg";
 
                 if (!File.Exists(tempfile) && Stream.TwitchBot != null)
                 {
                     string profileurl = Stream.TwitchBot.GetProfilePicUrl(message.Username);
-                    client.DownloadFile(new Uri(profileurl), tempfile);
+                    var response = client.GetAsync(profileurl).Result;
+                    response.EnsureSuccessStatusCode();
+                    var imageBytes = response.Content.ReadAsByteArrayAsync().Result;
+                    File.WriteAllBytes(tempfile, imageBytes);
                 }
 
                 ProfileCache[message.Username] = Image.FromFile(tempfile);

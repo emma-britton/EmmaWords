@@ -406,7 +406,7 @@ public static class MacondoAnalysis
             {
                 if (play.Word != null)
                 {
-                    string alpha = new(play.Word.Order().ToArray());
+                    string alpha = new([.. play.Word.Order()]);
                     alphaPlays[alpha] = alphaPlays.GetValueOrDefault(alpha) + 1;
                     alphaScores[alpha] = alphaScores.GetValueOrDefault(alpha) + play.Score;
                 }

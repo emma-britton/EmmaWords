@@ -28,7 +28,7 @@ public class Lexicon(string name) : IEnumerable<string>
     {
         get
         {
-            m_Anagrams ??= Words.ToLookup(w => new string(w.Order().ToArray()));
+            m_Anagrams ??= Words.ToLookup(w => new string([.. w.Order()]));
             return m_Anagrams;
         }
     }
@@ -125,9 +125,9 @@ public class Lexicon(string name) : IEnumerable<string>
     /// <param name="alphagram">The alphagram.</param>
     public IEnumerable<string> GetAnagrams(string alphagram)
     {
-        m_Anagrams ??= Words.ToLookup(w => new string(w.Order().ToArray()));
+        m_Anagrams ??= Words.ToLookup(w => new string([.. w.Order()]));
 
-        string sorted = new(alphagram.Order().ToArray());
+        string sorted = new([.. alphagram.Order()]);
         return m_Anagrams[sorted];
     }
 

@@ -188,7 +188,7 @@ public class TwitchBot
 
     public string GetProfilePicUrl(string name)
     {
-        return API.Helix.Users.GetUsersAsync(logins: new List<string> { name }).Result.Users[0].ProfileImageUrl;
+        return API.Helix.Users.GetUsersAsync(logins: [name]).Result.Users[0].ProfileImageUrl;
     }
 
 

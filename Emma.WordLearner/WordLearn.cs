@@ -126,7 +126,7 @@ public class WordLearn
     /// <param name="guess">The guessed word.</param>
     public bool SubmitGuess(string guess)
     {
-        string guessAlphagram = new(guess.Order().ToArray());
+        string guessAlphagram = new([.. guess.Order()]);
 
         if (guessAlphagram != Question)
         {
